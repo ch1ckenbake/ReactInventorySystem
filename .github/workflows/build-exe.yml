@@ -1,0 +1,45 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*', 'release-*' ]
+
+jobs:
+  build-exe:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare native modules for pkg
+        run: npm rebuild better-sqlite3 --update-binary
+
+      - name: Build exe
+        run: npm run build:exe
+
+      - name: Upload inventory-system.exe
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-system-exe
+          path: inventory-system.exe
+
+      - name: Package installer (ZIP fallback)
+        if: success()
+        run: npm run build:installer || echo "installer step failed (Inno Setup missing)"
+
+      - name: Upload installer ZIP
+        if: success() && (Test-Path -Path 'dist\installer\InventorySystem-portable.zip')
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-zip
+          path: dist/installer/InventorySystem-portable.zip

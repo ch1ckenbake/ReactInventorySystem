@@ -1,0 +1,137 @@
+name: Build cross-platform installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*', 'release-*']
+  release:
+    types: [published]
+
+env:
+  CI: true
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Node 18
+        run: npm rebuild better-sqlite3 --update-binary
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Windows EXE (pkg)
+        run: npx pkg launcher.cjs --targets node18-win-x64 --output inventory-system.exe --compress Brotli
+
+      - name: Assemble Windows release ZIP
+        run: |
+          $release = "release-win"
+          if (Test-Path $release) { Remove-Item $release -Recurse -Force }
+          New-Item -ItemType Directory -Path $release | Out-Null
+          Copy-Item dist -Destination $release -Recurse -Force
+          Copy-Item inventory.db -Destination $release -Force
+          Copy-Item inventory-system.exe -Destination $release -Force
+          Copy-Item launcher-app.vbs -Destination $release -Force
+          Copy-Item README.md -Destination $release -Force
+          if (!(Test-Path -Path dist\installer)) { New-Item -ItemType Directory -Path dist\installer | Out-Null }
+          Compress-Archive -Path $release\* -DestinationPath dist\installer\InventorySystem-win.zip -Force
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-system-win
+          path: |
+            dist/installer/InventorySystem-win.zip
+            inventory-system.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Node 18
+        run: npm rebuild better-sqlite3 --update-binary || true
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Linux binary (pkg)
+        run: npx pkg launcher.cjs --targets node18-linux-x64 --output inventory-system-linux --compress Brotli || true
+
+      - name: Assemble Linux release tar.gz
+        run: |
+          rm -rf release-linux || true
+          mkdir -p release-linux
+          cp -r dist release-linux/dist
+          cp inventory.db release-linux/ || true
+          cp inventory-system-linux* release-linux/ 2>/dev/null || true
+          cp launcher-app.vbs README.md release-linux/ 2>/dev/null || true
+          mkdir -p dist/installer
+          tar -czf dist/installer/InventorySystem-linux.tar.gz release-linux || true
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-system-linux
+          path: |
+            dist/installer/InventorySystem-linux.tar.gz
+            inventory-system-linux
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules for Node 18
+        run: npm rebuild better-sqlite3 --update-binary || true
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build macOS binary (pkg)
+        run: npx pkg launcher.cjs --targets node18-macos-x64,node18-macos-arm64 --output inventory-system-macos --compress Brotli || true
+
+      - name: Assemble macOS release tar.gz
+        run: |
+          rm -rf release-mac || true
+          mkdir -p release-mac
+          cp -r dist release-mac/dist
+          cp inventory.db release-mac/ || true
+          cp inventory-system-macos* release-mac/ 2>/dev/null || true
+          cp launcher-app.vbs README.md release-mac/ 2>/dev/null || true
+          mkdir -p dist/installer
+          tar -czf dist/installer/InventorySystem-macos.tar.gz release-mac || true
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-system-macos
+          path: |
+            dist/installer/InventorySystem-macos.tar.gz
+            inventory-system-macos*
