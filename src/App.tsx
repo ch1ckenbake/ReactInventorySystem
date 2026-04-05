@@ -946,7 +946,8 @@ const handleCloseModal = () => {
           name: row.name,
           size: row.size,
           unit: row.unit,
-          description: row.description
+          description: row.description,
+          pricePerPackage: row.price_per_package || 0
         }));
         setPackagingTypes(mapped);
       } catch (err) {
@@ -956,7 +957,7 @@ const handleCloseModal = () => {
     };
 
     const handleOpenPackagingModal = () => {
-      setPackagingFormData({ id: '', name: '', size: 0, unit: 'kg', description: '' });
+      setPackagingFormData({ id: '', name: '', size: 0, unit: 'kg', description: '', pricePerPackage: 0 });
       setIsPackagingEditMode(false);
       setIsPackagingModalOpen(true);
     };
@@ -972,17 +973,26 @@ const handleCloseModal = () => {
       e.preventDefault();
 
       try {
+        // Convert camelCase to snake_case for database
+        const dbPayload = {
+          name: packagingFormData.name,
+          size: packagingFormData.size,
+          unit: packagingFormData.unit,
+          description: packagingFormData.description,
+          price_per_package: packagingFormData.pricePerPackage || 0
+        };
+
         if (isPackagingEditMode) {
           await fetch(`/api/packaging?id=${packagingFormData.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(packagingFormData),
+            body: JSON.stringify(dbPayload),
           });
         } else {
           await fetch("/api/packaging", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(packagingFormData),
+            body: JSON.stringify(dbPayload),
           });
         }
 
@@ -3087,6 +3097,18 @@ return (
                         <option value="N/A">N/A</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Price Per Package (₱)</label>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      placeholder="0.00"
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                      value={packagingFormData.pricePerPackage || ''} 
+                      onChange={e => setPackagingFormData({...packagingFormData, pricePerPackage: parseFloat(e.target.value) || 0})} 
+                    />
                   </div>
 
                   <div>
