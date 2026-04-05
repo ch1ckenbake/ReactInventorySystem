@@ -1,7 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
 
-// Simple API handler that handles requests directly without Express
-// This avoids module loading issues in serverless environment
+// Initialize Supabase client directly
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
@@ -29,28 +32,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        message: 'API is running'
+        message: 'API is running',
+        supabaseConnected: !!supabase
       });
-    }
-
-    // Try to dynamically load modules only when needed
-    let supabase: any = null;
-    let modules: any = null;
-
-    try {
-      const supabaseModule = await import('../backend/supabase.js');
-      const googleModule = await import('../backend/googleDrive.js');
-      
-      supabase = supabaseModule.supabase;
-      modules = {
-        supabase,
-        initializeSupabaseSchema: supabaseModule.initializeSupabaseSchema,
-        exchangeCodeForToken: googleModule.exchangeCodeForToken,
-        getUserInfo: googleModule.getUserInfo,
-      };
-    } catch (importError) {
-      console.error('Failed to load backend modules:', importError);
-      // Continue without modules for basic routes
     }
 
     // ============================================
@@ -72,64 +56,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ authUrl, redirectUri });
     }
 
-    if (pathname === '/api/auth/google/callback') {
-      const code = req.query.code as string;
-      if (!code) {
-        return res.status(400).json({ error: 'No authorization code provided' });
-      }
-
-      if (!modules) {
-        return res.status(500).json({ error: 'Backend modules not available' });
-      }
-
-      try {
-        const token = await modules.exchangeCodeForToken(code);
-        return res.redirect(`/?userId=${crypto.randomUUID()}`);
-      } catch (error) {
-        console.error('OAuth error:', error);
-        return res.status(500).json({ error: 'Failed to authenticate' });
-      }
-    }
-
-    if (pathname === '/api/auth/user-info') {
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.split(' ')[1];
-
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
-
-      if (!modules) {
-        return res.status(500).json({ error: 'Backend modules not available' });
-      }
-
-      try {
-        const userInfo = await modules.getUserInfo(token);
-        return res.status(200).json(userInfo);
-      } catch (error) {
-        console.error('Error getting user info:', error);
-        return res.status(500).json({ error: 'Failed to get user info' });
-      }
-    }
-
     // ============================================
     // INVENTORY ROUTES
     // ============================================
 
     if (pathname === '/api/inventory') {
       if (!supabase) {
-        return res.status(503).json({ error: 'Database not available' });
+        return res.status(503).json({ error: 'Database not configured' });
       }
 
       if (method === 'GET') {
         const { data, error } = await supabase.from('inventory').select('*');
-        if (error) throw error;
+        if (error) {
+          console.error('Inventory fetch error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(200).json(data || []);
       }
 
       if (method === 'POST') {
         const { data, error } = await supabase.from('inventory').insert([req.body]).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Inventory insert error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(201).json(data?.[0] || {});
       }
     }
@@ -137,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (pathname.match(/^\/api\/inventory\/[^/]+$/)) {
       const id = pathname.split('/').pop();
       if (!supabase) {
-        return res.status(503).json({ error: 'Database not available' });
+        return res.status(503).json({ error: 'Database not configured' });
       }
 
       if (method === 'PUT') {
@@ -146,13 +96,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .update(req.body)
           .eq('id', id)
           .select();
-        if (error) throw error;
+        if (error) {
+          console.error('Inventory update error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(200).json(data?.[0] || {});
       }
 
       if (method === 'DELETE') {
         const { error } = await supabase.from('inventory').delete().eq('id', id);
-        if (error) throw error;
+        if (error) {
+          console.error('Inventory delete error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(200).json({ success: true, id });
       }
     }
@@ -163,18 +119,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (pathname === '/api/categories') {
       if (!supabase) {
-        return res.status(503).json({ error: 'Database not available' });
+        return res.status(503).json({ error: 'Database not configured' });
       }
 
       if (method === 'GET') {
         const { data, error } = await supabase.from('categories').select('*');
-        if (error) throw error;
+        if (error) {
+          console.error('Categories fetch error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(200).json(data || []);
       }
 
       if (method === 'POST') {
         const { data, error } = await supabase.from('categories').insert([req.body]).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Categories insert error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(201).json(data?.[0] || {});
       }
     }
@@ -182,7 +144,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (pathname.match(/^\/api\/categories\/[^/]+$/)) {
       const id = pathname.split('/').pop();
       if (!supabase) {
-        return res.status(503).json({ error: 'Database not available' });
+        return res.status(503).json({ error: 'Database not configured' });
       }
 
       if (method === 'PUT') {
@@ -191,13 +153,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .update(req.body)
           .eq('id', id)
           .select();
-        if (error) throw error;
+        if (error) {
+          console.error('Categories update error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(200).json(data?.[0] || {});
       }
 
       if (method === 'DELETE') {
         const { error } = await supabase.from('categories').delete().eq('id', id);
-        if (error) throw error;
+        if (error) {
+          console.error('Categories delete error:', error);
+          return res.status(500).json({ error: error.message });
+        }
         return res.status(200).json({ success: true, id });
       }
     }
