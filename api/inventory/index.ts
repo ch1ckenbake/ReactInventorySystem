@@ -69,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('[Inventory GET] IDs to fetch:', { categoryIds: categoryIds.length, varietyIds: varietyIds.length, packagingIds: packagingIds.length });
 
         // Fetch all related data in parallel
-        const [categoriesResult, varietiesResult, packagingResult] = await Promise.all([
+        const [categoriesResult, varietiesResult, packagingResult, pricesResult] = await Promise.all([
           categoryIds.length > 0 
             ? supabase.from('categories').select('id, name').in('id', categoryIds)
             : Promise.resolve({ data: [] }),
@@ -78,17 +78,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             : Promise.resolve({ data: [] }),
           packagingIds.length > 0
             ? supabase.from('packaging_types').select('*').in('id', packagingIds)
+            : Promise.resolve({ data: [] }),
+          varietyIds.length > 0
+            ? supabase.from('variety_packaging_prices').select('*').in('variety_id', varietyIds)
             : Promise.resolve({ data: [] })
         ]);
 
         const categories = categoriesResult.data || [];
         const varieties = varietiesResult.data || [];
         const packaging = packagingResult.data || [];
+        const prices = pricesResult.data || [];
 
         console.log('[Inventory GET] Fetched data:', {
           categories: categories.length,
           varieties: varieties.length,
-          packaging: packaging.length
+          packaging: packaging.length,
+          prices: prices.length
+        });
+
+        // Build packaging prices map from variety_packaging_prices table
+        const varietyPricesMap = new Map<string, Record<string, number>>();
+        prices.forEach(p => {
+          if (!varietyPricesMap.has(p.variety_id)) {
+            varietyPricesMap.set(p.variety_id, {});
+          }
+          varietyPricesMap.get(p.variety_id)![p.packaging_id] = p.price || 0;
         });
 
         // Create lookup maps
@@ -96,7 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const varietyMap = new Map<string, { name: string; packagingPrices: Record<string, number> }>(
           varieties.map(v => [v.id, {
             name: v.name,
-            packagingPrices: v.packagingPrices || {}
+            packagingPrices: varietyPricesMap.get(v.id) || {}
           }])
         );
         const packagingMap = new Map<string, { name: string; size: string; unit: string; pricePerPackage: number }>(
