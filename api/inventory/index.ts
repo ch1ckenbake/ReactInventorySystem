@@ -92,17 +92,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         // Create lookup maps
-        const categoryMap = new Map(categories.map(c => [c.id, c.name]));
-        const varietyMap = new Map(varieties.map(v => [v.id, {
-          name: v.name,
-          packagingPrices: v.packagingPrices || {}
-        }]));
-        const packagingMap = new Map(packaging.map(p => [p.id, {
-          name: p.name,
-          size: p.size,
-          unit: p.unit,
-          pricePerPackage: p.price_per_package || p.pricePerPackage || 0
-        }]));
+        const categoryMap = new Map<string, string>(categories.map(c => [c.id, c.name]));
+        const varietyMap = new Map<string, { name: string; packagingPrices: Record<string, number> }>(
+          varieties.map(v => [v.id, {
+            name: v.name,
+            packagingPrices: v.packagingPrices || {}
+          }])
+        );
+        const packagingMap = new Map<string, { name: string; size: string; unit: string; pricePerPackage: number }>(
+          packaging.map(p => [p.id, {
+            name: p.name,
+            size: p.size,
+            unit: p.unit,
+            pricePerPackage: p.price_per_package || p.pricePerPackage || 0
+          }])
+        );
 
         console.log('[Inventory GET] Maps created successfully');
 

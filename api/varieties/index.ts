@@ -43,45 +43,102 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     try {
-      const { data, error } = await supabase
+      // Fetch all varieties
+      const { data: varietiesData, error: varietiesError } = await supabase
         .from('varieties')
         .select('*')
         .order('id', { ascending: true });
 
-      if (error) {
-        return res.status(500).json({ error: error.message });
+      if (varietiesError) {
+        return res.status(500).json({ error: varietiesError.message });
       }
 
-      return res.status(200).json(data || []);
+      if (!varietiesData || varietiesData.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      // Fetch all variety-packaging prices
+      const { data: pricesData, error: pricesError } = await supabase
+        .from('variety_packaging_prices')
+        .select('*');
+
+      if (pricesError) {
+        console.warn('[Varieties GET] Prices error (non-blocking):', pricesError);
+        // Still return varieties even if prices fail
+      }
+
+      // Build packagingPrices map for each variety
+      const enrichedData = varietiesData.map(variety => {
+        const packagingPrices: Record<string, number> = {};
+        if (pricesData) {
+          pricesData
+            .filter(p => p.variety_id === variety.id)
+            .forEach(p => {
+              packagingPrices[p.packaging_id] = p.price || 0;
+            });
+        }
+        return {
+          ...variety,
+          packagingPrices
+        };
+      });
+
+      return res.status(200).json(enrichedData);
     } catch (error) {
-      console.error('[Varieties GET] Error:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error('[Varieties GET] Unhandled error:', error);
+      return res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
   if (req.method === 'POST') {
     try {
-      // Convert camelCase to snake_case for database
       const body = req.body;
-      const dbPayload = {
-        category_id: body.categoryId,
-        name: body.name,
-        description: body.description,
-        packagingPrices: body.packagingPrices || {} // Store as JSONB
-      };
-
-      const { data, error } = await supabase
+      const { packagingPrices, ...varietyData } = body;
+      
+      // Insert the variety
+      const { data: varietyInserted, error: insertError } = await supabase
         .from('varieties')
-        .insert([dbPayload])
+        .insert([{
+          category_id: varietyData.categoryId,
+          name: varietyData.name,
+          description: varietyData.description
+        }])
         .select()
         .single();
 
-      if (error) {
-        console.error('[Varieties POST] Error:', error);
-        return res.status(500).json({ error: error.message });
+      if (insertError) {
+        console.error('[Varieties POST] Insert error:', insertError);
+        return res.status(500).json({ error: insertError.message });
       }
 
-      return res.status(201).json(data);
+      // Insert packaging prices if provided
+      if (packagingPrices && Object.keys(packagingPrices).length > 0 && varietyInserted?.id) {
+        const priceRecords = Object.entries(packagingPrices).map(([packagingId, price]) => ({
+          variety_id: varietyInserted.id,
+          packaging_id: packagingId,
+          price: Number(price) || 0
+        }));
+
+        const { error: pricesError } = await supabase
+          .from('variety_packaging_prices')
+          .insert(priceRecords);
+
+        if (pricesError) {
+          console.warn('[Varieties POST] Prices insert warning (non-blocking):', pricesError);
+          // Don't fail the whole request if prices fail
+        }
+      }
+
+      // Return enriched variety with prices
+      const enrichedVariety = {
+        ...varietyInserted,
+        packagingPrices: packagingPrices || {}
+      };
+
+      return res.status(201).json(enrichedVariety);
     } catch (error) {
       console.error('[Varieties POST] Unhandled error:', error);
       return res.status(500).json({
@@ -98,27 +155,57 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'ID is required' });
       }
 
-      // Convert camelCase to snake_case for database
       const body = req.body;
+      
+      // Update the variety record
       const dbPayload = {
         category_id: body.categoryId,
         name: body.name,
-        description: body.description,
-        packagingPrices: body.packagingPrices || {} // Store as JSONB
+        description: body.description
       };
 
-      const { data, error } = await supabase
+      const { data: varietyData, error: varietyError } = await supabase
         .from('varieties')
         .update(dbPayload)
         .eq('id', id)
         .select()
         .single();
 
-      if (error) {
-        return res.status(500).json({ error: error.message });
+      if (varietyError) {
+        return res.status(500).json({ error: varietyError.message });
       }
 
-      return res.status(200).json(data);
+      // Update packaging associations if provided
+      if (body.packagingIds && Array.isArray(body.packagingIds)) {
+        // Delete existing associations
+        const { error: deleteError } = await supabase
+          .from('category_variety_packages')
+          .delete()
+          .eq('variety_id', id);
+
+        if (deleteError) {
+          return res.status(500).json({ error: deleteError.message });
+        }
+
+        // Create new associations
+        if (body.packagingIds.length > 0) {
+          const packageRecords = body.packagingIds.map((packageId: string) => ({
+            category_id: body.categoryId,
+            variety_id: id,
+            package_id: packageId
+          }));
+
+          const { error: insertError } = await supabase
+            .from('category_variety_packages')
+            .insert(packageRecords);
+
+          if (insertError) {
+            return res.status(500).json({ error: insertError.message });
+          }
+        }
+      }
+
+      return res.status(200).json(varietyData);
     } catch (error) {
       console.error('[Varieties PUT] Error:', error);
       return res.status(500).json({ error: 'Internal server error' });
