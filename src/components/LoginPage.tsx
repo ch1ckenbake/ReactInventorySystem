@@ -13,7 +13,7 @@ export function LoginPage({ warning }: LoginPageProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '/api';
       const response = await fetch(`${backendUrl}/auth/google/url`);
       if (!response.ok) {
         throw new Error('Failed to get Google auth URL');

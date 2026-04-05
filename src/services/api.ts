@@ -1,6 +1,6 @@
 // Backend API helper - centralizes backend URL configuration
 export function getBackendUrl(path: string): string {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '/api';
   return `${backendUrl}${path}`;
 }
 
