@@ -102,7 +102,7 @@ import { useAuth } from './hooks/useAuth';
     // Authentication
     const { isAuthenticated, isLoading: isAuthLoading, isUnverified, user, logout } = useAuth();
 
-    const [activeTab, setActiveTab] = useState('Inventory');
+    const [activeTab, setActiveTab] = useState('Dashboard');
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -309,13 +309,15 @@ const [donutCategoryFilter, setDonutCategoryFilter] = useState<string>('');
 
       const totalValueLabel = `${getCurrencySymbol()}${totalValueNumber.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
-      const lowStockItems = inventoryData.filter(item => item.quantityPackages < 50).length;
+      const totalItems = inventoryData.length;
+      const totalCategories = categories.length;
       const uniqueVarieties = varieties.length;
 
       return {
         totalValue: totalValueLabel,
         totalPackages: totalPackages.toLocaleString(),
-        lowStockItems: lowStockItems.toString(),
+        totalItems: totalItems.toString(),
+        totalCategories: totalCategories.toString(),
         varieties: uniqueVarieties.toString()
       };
     }, [inventoryData, varieties, categories]);
@@ -1137,8 +1139,8 @@ if (activeTab === 'Dashboard') {
 
   const cardsData = [
     { label: "Total Value", value: dashboardStats.totalValue },
-    { label: "Total Stock (Packages)", value: dashboardStats.totalPackages },
-    { label: "Low Stock Items", value: dashboardStats.lowStockItems },
+    { label: "Total Items", value: dashboardStats.totalItems },
+    { label: "Categories", value: dashboardStats.totalCategories },
     { label: "Varieties", value: dashboardStats.varieties },
   ];
 
