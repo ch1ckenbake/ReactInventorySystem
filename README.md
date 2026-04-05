@@ -1,53 +1,147 @@
 # 📦 Inventory Management System
 
-> A modern, cloud-first inventory management system deployed on Vercel with PostgreSQL backend and Google Drive integration for backups.
+Modern inventory management system with Google OAuth authentication and Supabase database backend.
 
-![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
-![Version](https://img.shields.io/badge/Version-2.0.0-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+## 🔐 Authentication Flow
 
-## 🚀 Deployment
+1. **User visits app** → Login page
+2. **Click "Sign in with Google"** → Redirects to Google OAuth
+3. **Grant permissions** → Returns to app with Google token
+4. **App checks Supabase** → Verifies email is in `verified_accounts` table
+5. **If authorized** → Shows inventory management dashboard
+6. **If not authorized** → Shows "Not authorized" message
 
-### Deploy to Vercel (Free)
+## 🚀 Deployment on Vercel
 
-1. **Fork/Clone this repository**
-   ```bash
-   git clone <your-repo-url>
-   cd ReactOfflineInventorySystem
+The app is deployed at: **https://react-inventory-system.vercel.app**
+
+### How Deployment Works
+
+1. Push code to GitHub → `main` branch
+2. Vercel auto-detects changes
+3. Runs `npm run build` (creates optimized bundle)
+4. Deploys to CDN
+5. Serverless functions (`/api/*`) handle backend logic
+
+### Environment Variables Required
+
+These must be set in **Vercel Dashboard** → **Settings** → **Environment Variables**:
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_ID` | Backend verification |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth secret |
+| `SUPABASE_URL` | Database URL |
+| `SUPABASE_ANON_KEY` | Public database key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Private database key |
+| `VITE_BACKEND_URL` | API base URL |
+
+**All variables must be applied to: Production & Preview environments**
+
+## 📱 Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Opens at http://localhost:5173
+```
+
+The app uses Vite proxy (`vite.config.ts`) to route `/api` requests to local Vercel functions.
+
+## 📂 Project Structure
+
+```
+src/
+  ├── App.tsx                 # Main dashboard (protected)
+  ├── components/
+  │   ├── LoginPage.tsx       # Google OAuth login
+  │   └── SettingsModal.tsx   # User settings
+  ├── hooks/
+  │   └── useAuth.ts          # Auth state management
+  └── services/
+      ├── googleAuth.ts       # Google OAuth logic
+      ├── api.ts              # API helper
+      └── offlineSync.ts      # Data sync
+
+api/
+  ├── [...].ts                # Catch-all route handler
+  ├── inventory/index.ts      # GET/POST inventory
+  ├── categories/index.ts     # GET/POST categories
+  ├── varieties/index.ts      # GET/POST varieties
+  ├── packaging/index.ts      # GET/POST packaging
+  ├── history/index.ts        # GET/POST history
+  ├── auth/
+  │   ├── google.ts           # Google token verification
+  │   └── user-info.ts        # Get user profile
+  └── verified-accounts/      # Check authorized users
+      ├── index.ts
+      └── check.ts
+
+.env                    # Local development
+vercel.json            # Vercel configuration
+vite.config.ts         # Vite configuration
+package.json           # Dependencies
+tsconfig.json          # TypeScript config
+```
+
+## 🔑 Database Setup
+
+### Supabase Tables Required
+
+1. **`users`** - Stores user profiles
+   ```sql
+   id, email, name, picture, created_at
    ```
 
-2. **Install dependencies & build**
-   ```bash
-   npm install
-   npm run build
+2. **`verified_accounts`** - Allowlist for authorized users
+   ```sql
+   email (PRIMARY KEY), created_at
    ```
 
-3. **Push to GitHub** and connect to Vercel:
-   - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
-   - Import your repository
-   - Vercel will auto-detect settings from `vercel.json`
-   - Add environment variables (see below)
-   - Deploy!
+3. **`inventory`** - Inventory items
+   ```sql
+   id, batchCode, categoryId, varietyId, packagingId, quantityPackages, totalWeight, status, createdAt
+   ```
 
-### ⚙️ Environment Variables
+Add your email to `verified_accounts` table to access the system.
 
-You need to set these in your Vercel dashboard:
+## ✅ Testing the Deployment
 
-**Database (Vercel Postgres - Free Tier)**
+### Health Check
+```bash
+GET https://react-inventory-system.vercel.app/api/health
 ```
-POSTGRES_PRISMA_URL=<from Vercel Postgres>
-POSTGRES_URL_NON_POOLING=<from Vercel Postgres>
-```
+Returns API status and configuration.
 
-**Google OAuth (for backup/sync)**
-```
-GOOGLE_CLIENT_ID=<your_google_client_id>
-GOOGLE_CLIENT_SECRET=<your_google_client_secret>
-```
+### Sign In
+1. Visit https://react-inventory-system.vercel.app
+2. Click **"Sign in with Google"**
+3. Should redirect to Google login
 
-Get Google OAuth credentials:
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
+### Access Dashboard
+- If your email is in `verified_accounts`, you'll see the inventory dashboard
+- If not, you'll see "Not authorized"
+
+## 🐛 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| 404 errors on API | Check environment variables are set in Vercel |
+| Google sign in fails | Add domain to Google Cloud Console authorized URIs |
+| "Not authorized" message | Add your email to Supabase `verified_accounts` table |
+| Build fails | Check `npm run build` works locally first |
+
+## 📖 See Also
+
+- [AUTH_IMPLEMENTATION.md](AUTH_IMPLEMENTATION.md) - Detailed auth flow documentation
+- [Vercel Docs](https://vercel.com/docs) - Deployment documentation
+- [Supabase Docs](https://supabase.com/docs) - Database documentation
+
 2. Create new OAuth 2.0 credentials (Web application)
 3. Set redirect URI: `https://your-app.vercel.app/api/auth/google/callback`
 
