@@ -103,15 +103,6 @@ import { useAuth } from './hooks/useAuth';
     // Authentication
     const { isAuthenticated, isLoading: isAuthLoading, isUnverified, user, logout } = useAuth();
 
-    // Initialize dark mode from localStorage
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-      try {
-        return JSON.parse(localStorage.getItem('darkMode') || 'false');
-      } catch {
-        return false;
-      }
-    });
-
     // Initialize activeTab from localStorage, default to Dashboard
     const [activeTab, setActiveTabState] = useState(() => {
       try {
@@ -126,16 +117,6 @@ import { useAuth } from './hooks/useAuth';
       setActiveTabState(tab);
       localStorage.setItem('activeTab', tab);
     };
-
-    // Persist dark mode to localStorage
-    useEffect(() => {
-      localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-      if (isDarkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }, [isDarkMode]);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -1207,7 +1188,7 @@ if (activeTab === 'Dashboard') {
   }
 
 return (
-    <div className={`flex-1 overflow-y-auto p-4 lg:p-8 ${isDarkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
+    <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-gray-50">
       {/* Main Layout Container */}
       <div className="flex flex-col lg:flex-row gap-8">
         
@@ -1216,7 +1197,7 @@ return (
           
           {/* Stats Cards Section */}
           <section>
-            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-2xl border shadow-sm grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-y md:divide-y-0 md:divide-x ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+            <div className="bg-white border-gray-200 rounded-2xl border shadow-sm grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
               {cardsData.map((card, index) => {
                 const Style = cardStyles[index] || cardStyles[0];
                 const Icon = Style.icon;
@@ -1224,25 +1205,25 @@ return (
                 return (
                   <div
                     key={card.label}
-                    className={`p-6 flex flex-col justify-between h-40 transition-colors duration-200 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
+                    className="p-6 flex flex-col justify-between h-40 transition-colors duration-200 hover:bg-gray-50"
                   >
                     <div className="flex justify-between items-start mb-4">
-                      <div className={`w-10 h-10 rounded-xl border flex items-center justify-center text-blue-400 shadow-sm ${isDarkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-gray-100'}`}>
+                      <div className="w-10 h-10 rounded-xl border flex items-center justify-center text-blue-400 shadow-sm bg-blue-50 border-gray-100">
                         <Icon size={20} strokeWidth={1.5} />
                       </div>
                       {index === 2 && (
-                        <button className={`${isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+                        <button className="text-gray-400 hover:text-gray-600">
                           <MoreVertical size={20} />
                         </button>
                       )}
                     </div>
 
                     <div className="mb-1">
-                      <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{card.label}</h3>
+                      <h3 className="text-sm font-medium text-gray-500">{card.label}</h3>
                     </div>
 
                     <div>
-                      <span className={`text-2xl font-bold tracking-tight ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                      <span className="text-2xl font-bold tracking-tight text-gray-900">
                         {card.value}
                       </span>
                     </div>
@@ -2536,35 +2517,35 @@ return (
 
     // Only authenticated users see the full dashboard
     return (
-      <div className={`h-screen flex flex-col lg:flex-row ${isDarkMode ? 'bg-gray-950 text-gray-50' : 'bg-gray-50 text-gray-800'} font-sans overflow-hidden`}>
+      <div className="h-screen flex flex-col lg:flex-row bg-gray-50 text-gray-800 font-sans overflow-hidden">
         {/* Mobile Header */}
-        <header className={`lg:hidden ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-b px-4 py-4 flex items-center justify-between`}>
+        <header className="lg:hidden bg-white border-gray-200 border-b px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Package2 size={28} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
-            <span className={`text-lg font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Inventory</span>
+            <Package2 size={28} className="text-blue-600" />
+            <span className="text-lg font-bold text-gray-900">Inventory</span>
           </div>
           <button 
             onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-            className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+            className="p-2 rounded-lg transition-colors hover:bg-gray-100 text-gray-700"
           >
             {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </header>
 
         {/* Sidebar - Desktop visible, Mobile overlay */}
-        <aside className={`fixed lg:static inset-y-0 left-0 lg:inset-auto w-64 lg:w-60 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r transition-transform duration-300 z-40 lg:z-0 ${
+        <aside className={`fixed lg:static inset-y-0 left-0 lg:inset-auto w-64 lg:w-60 bg-white border-gray-200 border-r transition-transform duration-300 z-40 lg:z-0 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } pt-4 lg:pt-8 px-4 lg:px-6 flex flex-col overflow-y-auto`}>
           {/* Close button for mobile */}
           <button 
             onClick={() => setIsMobileSidebarOpen(false)}
-            className={`lg:hidden mb-4 p-2 rounded-lg self-end ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
+            className="lg:hidden mb-4 p-2 rounded-lg self-end hover:bg-gray-100"
           >
             <X size={20} />
           </button>
 
-          <div className={`flex items-center gap-2 text-xl font-bold mb-8 lg:mb-10 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-            <Package2 size={26} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> 
+          <div className="flex items-center gap-2 text-xl font-bold mb-8 lg:mb-10 text-gray-900">
+            <Package2 size={26} className="text-blue-600" /> 
             <h1 className="hidden sm:inline">Menu</h1>
           </div>
 
@@ -2578,11 +2559,7 @@ return (
                 }}
                 className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                   activeTab === item 
-                    ? isDarkMode 
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-blue-50 text-blue-600 shadow'
-                    : isDarkMode
-                    ? 'hover:bg-gray-800 text-gray-300'
+                    ? 'bg-blue-50 text-blue-600 shadow'
                     : 'hover:bg-gray-100 text-gray-700'
                 }`}
               >
@@ -2591,7 +2568,7 @@ return (
             ))}
           </nav>
 
-          <nav className="space-y-2 border-t py-4" style={{borderColor: isDarkMode ? '#374151' : '#e5e7eb'}}>
+          <nav className="space-y-2 border-t py-4" style={{borderColor: '#e5e7eb'}}>
             {["History"].map(item => (
               <button
                 key={item}
@@ -2601,11 +2578,7 @@ return (
                 }}
                 className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                   activeTab === item 
-                    ? isDarkMode 
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-blue-50 text-blue-600 shadow'
-                    : isDarkMode
-                    ? 'hover:bg-gray-800 text-gray-300'
+                    ? 'bg-blue-50 text-blue-600 shadow'
                     : 'hover:bg-gray-100 text-gray-700'
                 }`}
               >
@@ -2615,15 +2588,11 @@ return (
           </nav>
 
           {/* Master Data Section */}
-          <nav className={`space-y-2 border-t py-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <nav className="space-y-2 border-t py-4 border-gray-200">
             <div className="pt-2">
               <button
                 onClick={() => setIsMasterDataOpen(!isMasterDataOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg font-medium transition-all ${
-                  isDarkMode 
-                    ? 'text-gray-300 hover:bg-gray-700' 
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg font-medium transition-all text-gray-600 hover:bg-gray-100"
               >
                 <span>Master Data</span>
                 <ChevronRight 
@@ -2633,7 +2602,7 @@ return (
               </button>
 
               {isMasterDataOpen && (
-                <div className={`mt-1 ml-4 space-y-1 pl-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-100'} border-l-2`}>
+                <div className="mt-1 ml-4 space-y-1 pl-4 border-gray-100 border-l-2">
                   {["Categories", "Varieties", "Packaging"].map(item => (
                     <button
                       key={item}
@@ -2643,11 +2612,7 @@ return (
                       }}
                       className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         activeTab === item 
-                          ? isDarkMode
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-blue-50 text-blue-600'
-                          : isDarkMode
-                          ? 'text-gray-400 hover:bg-gray-700 hover:text-gray-200'
+                          ? 'bg-blue-50 text-blue-600'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`}
                     >
@@ -2660,13 +2625,13 @@ return (
           </nav>
 
           {/* Settings Section */}
-          <div style={{borderColor: isDarkMode ? '#374151' : '#e5e7eb'}} className="border-t pt-4 mt-4">
+          <div className="border-t border-gray-200 pt-4 mt-4">
             <button 
               onClick={() => {
                 setIsSettingsOpen(true);
                 setIsMobileSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isDarkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all hover:bg-gray-100 text-gray-700"
             >
               <Settings size={20} /> Settings
             </button>
@@ -2683,10 +2648,10 @@ return (
 
         {/* Main Layout */}
         <main className="flex-1 flex flex-col overflow-hidden relative w-full lg:w-auto">
-          <header className={`${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'} px-4 lg:px-8 py-4 lg:py-5 flex items-center justify-between sticky top-0 z-10 border-b`}>
+          <header className="bg-white border-gray-100 px-4 lg:px-8 py-4 lg:py-5 flex items-center justify-between sticky top-0 z-10 border-b">
             <div className="flex-1 min-w-0">
-              <h2 className={`text-xl lg:text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} truncate`}>{activeTab}</h2>
-              <p className={`text-xs lg:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1 truncate`}>
+              <h2 className="text-xl lg:text-2xl font-bold text-gray-900 truncate">{activeTab}</h2>
+              <p className="text-xs lg:text-sm text-gray-500 mt-1 truncate">
                 {activeTab === 'Dashboard' ? 'Your Inventory Dashboard' : `Manage your ${activeTab}`}
               </p>
             </div>
@@ -2703,11 +2668,7 @@ return (
               {syncStatus !== 'idle' && (
                 <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
                   syncStatus === 'saving' 
-                    ? isDarkMode
-                      ? 'bg-blue-900 text-blue-300'
-                      : 'bg-blue-100 text-blue-700'
-                    : isDarkMode
-                    ? 'bg-green-900 text-green-300'
+                    ? 'bg-blue-100 text-blue-700'
                     : 'bg-green-100 text-green-700'
                 }`}>
                   {syncStatus === 'saving' ? (
@@ -2726,7 +2687,7 @@ return (
 
               <button
                 onClick={() => setIsSettingsOpen(true)}
-                className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-200' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'}`}
+                className="p-2 rounded-lg transition-colors hover:bg-gray-100 text-gray-600 hover:text-gray-900"
                 title="Settings"
               >
                 <Settings size={20} className="lg:w-6 lg:h-6" />
@@ -2735,7 +2696,7 @@ return (
           </header>
           
           {/* Content Area - Responsive Padding */}
-          <div className={`flex-1 overflow-y-auto ${isDarkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
+          <div className="flex-1 overflow-y-auto bg-gray-50">
             <div className="px-4 py-4 lg:px-8 lg:py-6">
               {renderContent()}
             </div>
@@ -2750,8 +2711,6 @@ return (
               setIsSettingsOpen(false);
             }}
             user={user}
-            isDarkMode={isDarkMode}
-            onDarkModeToggle={setIsDarkMode}
           />
 
 
