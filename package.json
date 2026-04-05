@@ -6,9 +6,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "backend": "node backend/server-supabase.js",
-    "backend:local": "tsx backend/server-supabase.ts",
-    "start": "tsx backend/server-supabase.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
