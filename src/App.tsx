@@ -42,9 +42,7 @@ import { useAuth } from './hooks/useAuth';
     ArrowDown,
     ChevronLeft,
     Settings,
-    Menu,
-    Moon,
-    Sun
+    Menu
   } from 'lucide-react';
 
   // Define interfaces
@@ -170,7 +168,6 @@ const [donutCategoryFilter, setDonutCategoryFilter] = useState<string>('');
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-    const [isMasterDataOpen, setIsMasterDataOpen] = useState(false);
     const [varietyCategoryFilter, setVarietyCategoryFilter] = useState<string>('All');
 
     // Modal states
