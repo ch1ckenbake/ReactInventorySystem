@@ -53,35 +53,35 @@ export function LoginPage({ warning }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-4">
+      <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/20">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-100 p-4 rounded-full">
+            <div className="bg-blue-100/80 p-4 rounded-full">
               <Lock className="w-8 h-8 text-blue-600" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Inventory System</h1>
-          <p className="text-gray-600">Sign in to manage your inventory</p>
+          <p className="text-gray-600 text-sm">Sign in to manage your inventory</p>
         </div>
 
         {/* Warning Message */}
         {warning && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mb-6 p-4 bg-yellow-50/90 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800 text-sm">{warning}</p>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50/90 border border-red-200 rounded-lg">
             <p className="text-red-700 text-sm font-medium">{error}</p>
           </div>
         )}
 
         {/* Login Button */}
-        <div className="mb-4 flex justify-center">
+        <div className="mb-6 flex justify-center">
           {isLoading ? (
             <div className="bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg flex items-center justify-center gap-2">
               <Loader className="w-5 h-5 animate-spin" />
@@ -97,12 +97,17 @@ export function LoginPage({ warning }: LoginPageProps) {
           )}
         </div>
 
-        {/* Info Section */}
-        <div className="border-t pt-6 mt-6">
-          <p className="text-gray-600 text-sm text-center">
-            Secure authentication with your Google account
-          </p>
+        {/* Divider */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200/50"></div>
+          </div>
         </div>
+
+        {/* Info Section */}
+        <p className="text-gray-600 text-xs text-center">
+          Secure authentication with your Google account
+        </p>
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-500 mt-6">
