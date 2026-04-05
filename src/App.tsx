@@ -2635,64 +2635,7 @@ return (
             className="fixed inset-0 bg-black/50 z-30 lg:hidden"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
-        )} 
-                    ? 'bg-blue-50 text-blue-600' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-
-
-            {/* Master Data Collapsible */}
-            <div className="pt-2">
-              <button
-                onClick={() => setIsMasterDataOpen(!isMasterDataOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
-              >
-                <span>Master Data</span>
-                <ChevronRight 
-                  size={18} 
-                  className={`transform transition-transform duration-200 ${isMasterDataOpen ? 'rotate-90' : ''}`}
-                />
-              </button>
-              
-              {isMasterDataOpen && (
-                <div className="mt-1 ml-4 space-y-1 border-l-2 border-gray-100 pl-4">
-                  {["Categories", "Varieties", "Packaging"].map(item => (
-                    <button
-                      key={item}
-                      onClick={() => setActiveTab(item)}
-                      className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        activeTab === item 
-                          ? 'bg-blue-50 text-blue-600' 
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => setActiveTab("History")}
-              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === "History" 
-                  ? 'bg-blue-50 text-blue-600' 
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-            >
-              History
-            </button>
-          </nav>
-
-          <div className={`mt-auto border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} pt-6`}>
-            {/* Settings button in header — removed Settings tab but kept modal for Google Drive sync */}
-          </div>
-        </aside>
+        )}
 
         {/* Main Layout */}
         <main className="flex-1 flex flex-col overflow-hidden relative w-full lg:w-auto">
