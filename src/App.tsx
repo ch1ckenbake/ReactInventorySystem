@@ -41,7 +41,10 @@ import { useAuth } from './hooks/useAuth';
     ArrowUp,
     ArrowDown,
     ChevronLeft,
-    Settings 
+    Settings,
+    Menu,
+    Moon,
+    Sun
   } from 'lucide-react';
 
   // Define interfaces
@@ -137,6 +140,7 @@ import { useAuth } from './hooks/useAuth';
     }, [isDarkMode]);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [varieties, setVarieties] = useState<Variety[]>([]);
@@ -2534,20 +2538,104 @@ return (
 
     // Only authenticated users see the full dashboard
     return (
-      <div className={`h-screen flex ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-800'} font-sans`}>
-        {/* Sidebar */}
-        <aside className={`w-60 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} px-6 py-8 flex flex-col border-r`}>
-          <div className={`flex items-center gap-2 text-2xl font-bold mb-10 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} tracking-tight text-center`}>
-            <Package2 size={30} /> 
-            <h1>Menu</h1>
+      <div className={`h-screen flex flex-col lg:flex-row ${isDarkMode ? 'bg-gray-950 text-gray-100' : 'bg-gray-50 text-gray-800'} font-sans overflow-hidden`}>
+        {/* Mobile Header */}
+        <header className={`lg:hidden ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-b px-4 py-4 flex items-center justify-between`}>
+          <div className="flex items-center gap-3">
+            <Package2 size={28} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} />
+            <span className="text-lg font-bold">Inventory</span>
           </div>
-          <nav className="space-y-1 flex-1">
+          <button 
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
+          >
+            {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </header>
+
+        {/* Sidebar - Desktop visible, Mobile overlay */}
+        <aside className={`fixed lg:static inset-y-0 left-0 lg:inset-auto w-64 lg:w-60 ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-r transition-transform duration-300 z-40 lg:z-0 ${
+          isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } pt-4 lg:pt-8 px-4 lg:px-6 flex flex-col overflow-y-auto`}>
+          {/* Close button for mobile */}
+          <button 
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className={`lg:hidden mb-4 p-2 rounded-lg self-end ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
+          >
+            <X size={20} />
+          </button>
+
+          <div className={`flex items-center gap-2 text-xl font-bold mb-8 lg:mb-10 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+            <Package2 size={26} className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> 
+            <h1 className="hidden sm:inline">Menu</h1>
+          </div>
+
+          <nav className="space-y-2 flex-1">
             {["Dashboard", "Inventory", "Analytics"].map(item => (
               <button
                 key={item}
-                onClick={() => setActiveTab(item)}
+                onClick={() => {
+                  setActiveTab(item);
+                  setIsMobileSidebarOpen(false);
+                }}
                 className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                   activeTab === item 
+                    ? isDarkMode 
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-blue-50 text-blue-600 shadow'
+                    : isDarkMode
+                    ? 'hover:bg-gray-800 text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+
+          <nav className="space-y-2 border-t py-4" style={{borderColor: isDarkMode ? '#374151' : '#e5e7eb'}}>
+            {["History"].map(item => (
+              <button
+                key={item}
+                onClick={() => {
+                  setActiveTab(item);
+                  setIsMobileSidebarOpen(false);
+                }}
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  activeTab === item 
+                    ? isDarkMode 
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-blue-50 text-blue-600 shadow'
+                    : isDarkMode
+                    ? 'hover:bg-gray-800 text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+
+          <div style={{borderColor: isDarkMode ? '#374151' : '#e5e7eb'}} className="border-t pt-4 mt-4">
+            <button 
+              onClick={() => {
+                setIsSettingsOpen(true);
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${isDarkMode ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+            >
+              <Settings size={20} /> Settings
+            </button>
+          </div>
+        </aside>
+
+        {/* Mobile sidebar overlay */}
+        {isMobileSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )} 
                     ? 'bg-blue-50 text-blue-600' 
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
@@ -2607,28 +2695,32 @@ return (
         </aside>
 
         {/* Main Layout */}
-        <main className="flex-1 flex flex-col overflow-hidden relative">
-          <header className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-100' : 'bg-white border-gray-100'} px-8 py-5 flex items-center justify-between sticky top-0 z-10 border-b`}>
-            <div>
-              <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{activeTab}</h2>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
+        <main className="flex-1 flex flex-col overflow-hidden relative w-full lg:w-auto">
+          <header className={`${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'} px-4 lg:px-8 py-4 lg:py-5 flex items-center justify-between sticky top-0 z-10 border-b`}>
+            <div className="flex-1 min-w-0">
+              <h2 className={`text-xl lg:text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} truncate`}>{activeTab}</h2>
+              <p className={`text-xs lg:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1 truncate`}>
                 {activeTab === 'Dashboard' ? 'Your Inventory Dashboard' : `Manage your ${activeTab}`}
               </p>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 lg:gap-6 ml-4">
               {/* Online/Offline Status */}
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                <span className="text-xs font-medium text-gray-600">
+                <span className="text-xs font-medium hidden md:inline text-gray-600 dark:text-gray-400">
                   {isOnline ? 'Online' : 'Offline'}
                 </span>
               </div>
 
               {/* Sync Status */}
               {syncStatus !== 'idle' && (
-                <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
                   syncStatus === 'saving' 
-                    ? 'bg-blue-100 text-blue-700' 
+                    ? isDarkMode
+                      ? 'bg-blue-900 text-blue-300'
+                      : 'bg-blue-100 text-blue-700'
+                    : isDarkMode
+                    ? 'bg-green-900 text-green-300'
                     : 'bg-green-100 text-green-700'
                 }`}>
                   {syncStatus === 'saving' ? (
@@ -2647,15 +2739,20 @@ return (
 
               <button
                 onClick={() => setIsSettingsOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900"
+                className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-200' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'}`}
                 title="Settings"
               >
-                <Settings size={24} />
+                <Settings size={20} className="lg:w-6 lg:h-6" />
               </button>
             </div>
           </header>
           
-          {renderContent()}
+          {/* Content Area - Responsive Padding */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-4 py-4 lg:px-8 lg:py-6">
+              {renderContent()}
+            </div>
+          </div>
 
           {/* Settings Modal */}
           <SettingsModal 
