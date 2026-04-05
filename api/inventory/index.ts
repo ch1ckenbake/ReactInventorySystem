@@ -58,28 +58,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json([]);
       }
 
-      // Get all unique category, variety, and packaging IDs
-      const categoryIds = [...new Set(inventoryData.map(item => item.category_id))];
-      const varietyIds = [...new Set(inventoryData.map(item => item.variety_id))];
-      const packagingIds = [...new Set(inventoryData.map(item => item.packaging_id))];
+      // Get all unique category, variety, and packaging IDs (filter out null/undefined)
+      const categoryIds = [...new Set(inventoryData.map(item => item.category_id).filter(Boolean))];
+      const varietyIds = [...new Set(inventoryData.map(item => item.variety_id).filter(Boolean))];
+      const packagingIds = [...new Set(inventoryData.map(item => item.packaging_id).filter(Boolean))];
 
-      // Fetch related data
-      const [{ data: categories }, { data: varieties }, { data: packaging }] = await Promise.all([
-        categoryIds.length > 0 
-          ? supabase.from('categories').select('id, name').in('id', categoryIds)
-          : Promise.resolve({ data: [] }),
-        varietyIds.length > 0
-          ? supabase.from('varieties').select('id, name').in('id', varietyIds)
-          : Promise.resolve({ data: [] }),
-        packagingIds.length > 0
-          ? supabase.from('packaging').select('id, name, size, unit').in('id', packagingIds)
-          : Promise.resolve({ data: [] })
-      ]);
+      // Fetch related data in parallel
+      const promises = [];
+      
+      if (categoryIds.length > 0) {
+        promises.push(supabase.from('categories').select('id, name').in('id', categoryIds));
+      } else {
+        promises.push(Promise.resolve({ data: [] }));
+      }
+      
+      if (varietyIds.length > 0) {
+        promises.push(supabase.from('varieties').select('id, name').in('id', varietyIds));
+      } else {
+        promises.push(Promise.resolve({ data: [] }));
+      }
+      
+      if (packagingIds.length > 0) {
+        promises.push(supabase.from('packaging').select('id, name, size, unit, pricePerPackage').in('id', packagingIds));
+      } else {
+        promises.push(Promise.resolve({ data: [] }));
+      }
+
+      const results = await Promise.all(promises);
+      const categories = results[0].data || [];
+      const varieties = results[1].data || [];
+      const packaging = results[2].data || [];
+
+      console.log('[Inventory GET] Fetched:', { categoryCount: categories.length, varietyCount: varieties.length, packagingCount: packaging.length });
 
       // Map the data to create lookup objects
-      const categoryMap = new Map(categories?.map(c => [c.id, c.name]) || []);
-      const varietyMap = new Map(varieties?.map(v => [v.id, v.name]) || []);
-      const packagingMap = new Map(packaging?.map(p => [p.id, { name: p.name, size: p.size, unit: p.unit }]) || []);
+      const categoryMap = new Map(categories.map(c => [c.id, c.name]));
+      const varietyMap = new Map(varieties.map(v => [v.id, v.name]));
+      const packagingMap = new Map(packaging.map(p => [p.id, { name: p.name, size: p.size, unit: p.unit, pricePerPackage: p.pricePerPackage || 0 }]));
 
       // Enrich inventory data with names
       const enrichedData = inventoryData.map(item => ({
@@ -88,7 +103,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         variety_name: varietyMap.get(item.variety_id) || null,
         packaging_name: packagingMap.get(item.packaging_id)?.name || null,
         packaging_size: packagingMap.get(item.packaging_id)?.size || null,
-        packaging_unit: packagingMap.get(item.packaging_id)?.unit || null
+        packaging_unit: packagingMap.get(item.packaging_id)?.unit || null,
+        packaging_price: packagingMap.get(item.packaging_id)?.pricePerPackage || 0
       }));
 
       return res.status(200).json(enrichedData);
