@@ -44,64 +44,59 @@ export function LoginPage({ warning }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 pt-12 pb-8 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-white bg-opacity-20 p-4 rounded-full">
-                <Lock className="w-8 h-8 text-white" />
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-blue-100 p-4 rounded-full">
+              <Lock className="w-8 h-8 text-blue-600" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-2">Inventory</h1>
-            <p className="text-blue-100">Sign in to manage your inventory</p>
           </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Inventory System</h1>
+          <p className="text-gray-600">Sign in to manage your inventory</p>
+        </div>
 
-          {/* Content */}
-          <div className="px-8 py-8">
-            {/* Warning Message */}
-            {warning && (
-              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800 text-sm">{warning}</p>
-              </div>
-            )}
+        {/* Warning Message */}
+        {warning && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-sm">{warning}</p>
+          </div>
+        )}
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-700 text-sm font-medium">{error}</p>
-              </div>
-            )}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm font-medium">{error}</p>
+          </div>
+        )}
 
-            {/* Login Button */}
-            <div className="mb-6">
-              {isLoading ? (
-                <div className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2">
-                  <Loader className="w-5 h-5 animate-spin" />
-                  Signing in...
-                </div>
-              ) : (
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  text="signin_with"
-                  theme="filled_blue"
-                  size="large"
-                  width="100%"
-                />
-              )}
+        {/* Login Button */}
+        <div className="mb-4 flex justify-center">
+          {isLoading ? (
+            <div className="bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg flex items-center justify-center gap-2">
+              <Loader className="w-5 h-5 animate-spin" />
+              Signing in...
             </div>
+          ) : (
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              text="signin_with"
+              theme="filled_blue"
+            />
+          )}
+        </div>
 
-            {/* Info */}
-            <p className="text-center text-gray-600 text-sm">
-              Secure authentication with your Google account
-            </p>
-          </div>
+        {/* Info Section */}
+        <div className="border-t pt-6 mt-6">
+          <p className="text-gray-600 text-sm text-center">
+            Secure authentication with your Google account
+          </p>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-blue-100 text-xs mt-6">
+        <p className="text-center text-xs text-gray-500 mt-6">
           By signing in, you agree to our terms of service
         </p>
       </div>
