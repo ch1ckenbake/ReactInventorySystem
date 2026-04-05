@@ -3,10 +3,8 @@
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "rewrites": [
-    {
-      "source": "/((?!api).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
     "GOOGLE_CLIENT_ID": "@google_client_id",
