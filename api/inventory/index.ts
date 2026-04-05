@@ -43,71 +43,111 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     if (req.method === 'GET') {
-      // First, get all inventory items
-      const { data: inventoryData, error: inventoryError } = await supabase
-        .from('inventory')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        // First, get all inventory items with related data
+        const { data: inventoryData, error: inventoryError } = await supabase
+          .from('inventory')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (inventoryError) {
-        console.error('[Inventory GET] Error:', inventoryError);
-        return res.status(500).json({ error: inventoryError.message });
+        if (inventoryError) {
+          console.error('[Inventory GET] Inventory error:', inventoryError);
+          return res.status(500).json({ error: inventoryError.message });
+        }
+
+        if (!inventoryData || inventoryData.length === 0) {
+          return res.status(200).json([]);
+        }
+
+        console.log('[Inventory GET] Found', inventoryData.length, 'inventory items');
+
+        // Get all unique IDs
+        const categoryIds = [...new Set(inventoryData.map(item => item.category_id).filter(Boolean))];
+        const varietyIds = [...new Set(inventoryData.map(item => item.variety_id).filter(Boolean))];
+        const packagingIds = [...new Set(inventoryData.map(item => item.packaging_id).filter(Boolean))];
+
+        console.log('[Inventory GET] IDs to fetch:', { categoryIds: categoryIds.length, varietyIds: varietyIds.length, packagingIds: packagingIds.length });
+
+        // Fetch all related data in parallel
+        const [categoriesResult, varietiesResult, packagingResult] = await Promise.all([
+          categoryIds.length > 0 
+            ? supabase.from('categories').select('id, name').in('id', categoryIds)
+            : Promise.resolve({ data: [] }),
+          varietyIds.length > 0
+            ? supabase.from('varieties').select('*').in('id', varietyIds)
+            : Promise.resolve({ data: [] }),
+          packagingIds.length > 0
+            ? supabase.from('packaging').select('*').in('id', packagingIds)
+            : Promise.resolve({ data: [] })
+        ]);
+
+        const categories = categoriesResult.data || [];
+        const varieties = varietiesResult.data || [];
+        const packaging = packagingResult.data || [];
+
+        console.log('[Inventory GET] Fetched data:', {
+          categories: categories.length,
+          varieties: varieties.length,
+          packaging: packaging.length
+        });
+
+        // Create lookup maps
+        const categoryMap = new Map(categories.map(c => [c.id, c.name]));
+        const varietyMap = new Map(varieties.map(v => [v.id, {
+          name: v.name,
+          packagingPrices: v.packagingPrices || {}
+        }]));
+        const packagingMap = new Map(packaging.map(p => [p.id, {
+          name: p.name,
+          size: p.size,
+          unit: p.unit,
+          pricePerPackage: p.price_per_package || p.pricePerPackage || 0
+        }]));
+
+        console.log('[Inventory GET] Maps created successfully');
+
+        // Enrich inventory data with all related information
+        const enrichedData = inventoryData.map(item => {
+          const varietyData = varietyMap.get(item.variety_id);
+          const packagingData = packagingMap.get(item.packaging_id);
+          
+          // Determine price per package:
+          // 1. Check if variety has specific price for this packaging
+          // 2. Fall back to packaging's general price
+          let finalPrice = 0;
+          if (varietyData?.packagingPrices && item.packaging_id) {
+            const varietyPrice = varietyData.packagingPrices[item.packaging_id];
+            if (typeof varietyPrice === 'number' && varietyPrice > 0) {
+              finalPrice = varietyPrice;
+            }
+          }
+          if (finalPrice === 0 && packagingData) {
+            finalPrice = packagingData.pricePerPackage;
+          }
+
+          const itemValue = finalPrice * (item.quantity_packages || 0);
+
+          return {
+            ...item,
+            category_name: categoryMap.get(item.category_id) || null,
+            variety_name: varietyData?.name || null,
+            packaging_name: packagingData?.name || null,
+            packaging_size: packagingData?.size || null,
+            packaging_unit: packagingData?.unit || null,
+            price_per_package: finalPrice,
+            calculated_value: itemValue
+          };
+        });
+
+        console.log('[Inventory GET] Enriched data with', enrichedData.length, 'items');
+        return res.status(200).json(enrichedData);
+      } catch (error) {
+        console.error('[Inventory GET] Unhandled error:', error);
+        return res.status(500).json({
+          error: 'Internal server error',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
-
-      if (!inventoryData || inventoryData.length === 0) {
-        return res.status(200).json([]);
-      }
-
-      // Get all unique category, variety, and packaging IDs (filter out null/undefined)
-      const categoryIds = [...new Set(inventoryData.map(item => item.category_id).filter(Boolean))];
-      const varietyIds = [...new Set(inventoryData.map(item => item.variety_id).filter(Boolean))];
-      const packagingIds = [...new Set(inventoryData.map(item => item.packaging_id).filter(Boolean))];
-
-      // Fetch related data in parallel
-      const promises = [];
-      
-      if (categoryIds.length > 0) {
-        promises.push(supabase.from('categories').select('id, name').in('id', categoryIds));
-      } else {
-        promises.push(Promise.resolve({ data: [] }));
-      }
-      
-      if (varietyIds.length > 0) {
-        promises.push(supabase.from('varieties').select('id, name').in('id', varietyIds));
-      } else {
-        promises.push(Promise.resolve({ data: [] }));
-      }
-      
-      if (packagingIds.length > 0) {
-        promises.push(supabase.from('packaging').select('id, name, size, unit, pricePerPackage').in('id', packagingIds));
-      } else {
-        promises.push(Promise.resolve({ data: [] }));
-      }
-
-      const results = await Promise.all(promises);
-      const categories = results[0].data || [];
-      const varieties = results[1].data || [];
-      const packaging = results[2].data || [];
-
-      console.log('[Inventory GET] Fetched:', { categoryCount: categories.length, varietyCount: varieties.length, packagingCount: packaging.length });
-
-      // Map the data to create lookup objects
-      const categoryMap = new Map(categories.map(c => [c.id, c.name]));
-      const varietyMap = new Map(varieties.map(v => [v.id, v.name]));
-      const packagingMap = new Map(packaging.map(p => [p.id, { name: p.name, size: p.size, unit: p.unit, pricePerPackage: p.pricePerPackage || 0 }]));
-
-      // Enrich inventory data with names
-      const enrichedData = inventoryData.map(item => ({
-        ...item,
-        category_name: categoryMap.get(item.category_id) || null,
-        variety_name: varietyMap.get(item.variety_id) || null,
-        packaging_name: packagingMap.get(item.packaging_id)?.name || null,
-        packaging_size: packagingMap.get(item.packaging_id)?.size || null,
-        packaging_unit: packagingMap.get(item.packaging_id)?.unit || null,
-        packaging_price: packagingMap.get(item.packaging_id)?.pricePerPackage || 0
-      }));
-
-      return res.status(200).json(enrichedData);
     }
 
     if (req.method === 'POST') {

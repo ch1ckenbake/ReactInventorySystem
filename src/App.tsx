@@ -302,15 +302,9 @@ const [donutCategoryFilter, setDonutCategoryFilter] = useState<string>('');
       const totalPackages = inventoryData.reduce((sum, item) => sum + item.quantityPackages, 0);
       inventoryData.reduce((sum, item) => sum + item.totalWeight, 0);
 
-      // Single-currency (PHP) total value — use per-variety packaging price when available, otherwise fall back to general packaging price
+      // Calculate total value using API-provided calculated_value
       const totalValueNumber = inventoryData.reduce((sum, item) => {
-        const variety = varieties.find(v => v.id === item.varietyId);
-        const packaging = packagingTypes.find(p => p.id === item.packagingId);
-        const varietyPrice = variety?.packagingPrices && typeof variety.packagingPrices[item.packagingId] === 'number'
-          ? Number(variety.packagingPrices[item.packagingId])
-          : undefined;
-        const unitPrice = (typeof varietyPrice === 'number' && varietyPrice > 0) ? varietyPrice : (packaging?.pricePerPackage || 0);
-        return sum + (unitPrice * item.quantityPackages);
+        return sum + ((item as any).calculatedValue || 0);
       }, 0);
 
       const totalValueLabel = `${getCurrencySymbol()}${totalValueNumber.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
@@ -750,7 +744,9 @@ const handleCloseModal = () => {
           quantityPackages: row.quantity_packages,
           totalWeight: row.total_weight,
           status: row.status,
-          createdAt: row.created_at
+          createdAt: row.created_at,
+          pricePerPackage: row.price_per_package,
+          calculatedValue: row.calculated_value
         }));
         
         setInventoryData(mappedData);
@@ -1890,30 +1886,13 @@ return (
                             </span>
                           </td>
 
-                          {/* Price (per package) & Value (price * qty) - uses per-variety override when available */}
+                          {/* Price (per package) & Value (price * qty) - from API enriched data */}
                           <td className="px-6 py-4 text-sm text-gray-700 text-right">
-                            {(() => {
-                              const variety = varieties.find(v => v.id === item.varietyId);
-                              const packaging = packagingTypes.find(p => p.id === item.packagingId);
-                              const varietyPrice = variety?.packagingPrices && typeof variety.packagingPrices[item.packagingId] === 'number'
-                                ? Number(variety.packagingPrices[item.packagingId])
-                                : undefined;
-                              const unitPrice = (typeof varietyPrice === 'number' && varietyPrice > 0) ? varietyPrice : (packaging?.pricePerPackage || 0);
-                              return `₱${unitPrice.toFixed(2)}`;
-                            })()}
+                            {`₱${((item as any).pricePerPackage || 0).toFixed(2)}`}
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-700 text-right">
-                            {(() => {
-                              const variety = varieties.find(v => v.id === item.varietyId);
-                              const packaging = packagingTypes.find(p => p.id === item.packagingId);
-                              const varietyPrice = variety?.packagingPrices && typeof variety.packagingPrices[item.packagingId] === 'number'
-                                ? Number(variety.packagingPrices[item.packagingId])
-                                : undefined;
-                              const unitPrice = (typeof varietyPrice === 'number' && varietyPrice > 0) ? varietyPrice : (packaging?.pricePerPackage || 0);
-                              const value = unitPrice * item.quantityPackages;
-                              return `₱${value.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-                            })()}
+                            {`₱${((item as any).calculatedValue || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`}
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-600">
