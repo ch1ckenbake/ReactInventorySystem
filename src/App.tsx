@@ -1207,7 +1207,7 @@ if (activeTab === 'Dashboard') {
   }
 
 return (
-    <div className="flex-1 overflow-y-auto p-8">
+    <div className={`flex-1 overflow-y-auto p-4 lg:p-8 ${isDarkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
       {/* Main Layout Container */}
       <div className="flex flex-col lg:flex-row gap-8">
         
@@ -1216,7 +1216,7 @@ return (
           
           {/* Stats Cards Section */}
           <section>
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-2xl border shadow-sm grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-y md:divide-y-0 md:divide-x ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {cardsData.map((card, index) => {
                 const Style = cardStyles[index] || cardStyles[0];
                 const Icon = Style.icon;
@@ -1224,25 +1224,25 @@ return (
                 return (
                   <div
                     key={card.label}
-                    className="p-6 flex flex-col justify-between h-40 hover:bg-gray-50 transition-colors duration-200"
+                    className={`p-6 flex flex-col justify-between h-40 transition-colors duration-200 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                   >
                     <div className="flex justify-between items-start mb-4">
-                      <div className="w-10 h-10 rounded-xl border border-gray-100 flex items-center justify-center text-blue-600 bg-blue-50 shadow-sm">
+                      <div className={`w-10 h-10 rounded-xl border flex items-center justify-center text-blue-400 shadow-sm ${isDarkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-gray-100'}`}>
                         <Icon size={20} strokeWidth={1.5} />
                       </div>
                       {index === 2 && (
-                        <button className="text-gray-400 hover:text-gray-600">
+                        <button className={`${isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
                           <MoreVertical size={20} />
                         </button>
                       )}
                     </div>
 
                     <div className="mb-1">
-                      <h3 className="text-gray-500 text-sm font-medium">{card.label}</h3>
+                      <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{card.label}</h3>
                     </div>
 
                     <div>
-                      <span className="text-2xl font-bold text-gray-900 tracking-tight">
+                      <span className={`text-2xl font-bold tracking-tight ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
                         {card.value}
                       </span>
                     </div>
