@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogOut, Cloud, CloudOff } from 'lucide-react';
+import { LogOut, Cloud, CloudOff, Moon, Sun } from 'lucide-react';
 import { clearAuthData } from '../services/googleAuth';
 
 interface GoogleUser {
@@ -14,9 +14,11 @@ interface SettingsProps {
   onClose: () => void;
   onLogout: () => void;
   user: GoogleUser | null;
+  isDarkMode?: boolean;
+  onDarkModeToggle?: (isDark: boolean) => void;
 }
 
-export function SettingsModal({ isOpen, onClose, onLogout, user }: SettingsProps) {
+export function SettingsModal({ isOpen, onClose, onLogout, user, isDarkMode = false, onDarkModeToggle }: SettingsProps) {
   const [currentUser, setCurrentUser] = useState<GoogleUser | null>(user);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
@@ -87,6 +89,25 @@ export function SettingsModal({ isOpen, onClose, onLogout, user }: SettingsProps
             <div className={`px-4 py-3 rounded-lg ${isOnline ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
               <p className={`text-sm ${isOnline ? 'text-green-700' : 'text-amber-700'}`}>{isOnline ? '✅ Connected' : '🔴 No internet'}</p>
             </div>
+          </div>
+
+          {/* Dark Mode Setting */}
+          <div className="space-y-3 border-t border-gray-200 pt-6">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                {isDarkMode ? <Moon size={18} className="text-purple-600" /> : <Sun size={18} className="text-yellow-600" />}
+                <span>Appearance</span>
+              </h3>
+              <button
+                onClick={() => onDarkModeToggle?.(!isDarkMode)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isDarkMode ? 'bg-purple-600' : 'bg-gray-300'}`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isDarkMode ? 'translate-x-6' : 'translate-x-1'}`}
+                />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">{isDarkMode ? 'Dark mode enabled' : 'Light mode enabled'}</p>
           </div>
 
         </div>

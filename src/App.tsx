@@ -102,7 +102,40 @@ import { useAuth } from './hooks/useAuth';
     // Authentication
     const { isAuthenticated, isLoading: isAuthLoading, isUnverified, user, logout } = useAuth();
 
-    const [activeTab, setActiveTab] = useState('Dashboard');
+    // Initialize dark mode from localStorage
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+      try {
+        return JSON.parse(localStorage.getItem('darkMode') || 'false');
+      } catch {
+        return false;
+      }
+    });
+
+    // Initialize activeTab from localStorage, default to Dashboard
+    const [activeTab, setActiveTabState] = useState(() => {
+      try {
+        return localStorage.getItem('activeTab') || 'Dashboard';
+      } catch {
+        return 'Dashboard';
+      }
+    });
+
+    // Wrapper to persist activeTab to localStorage when it changes
+    const setActiveTab = (tab: string) => {
+      setActiveTabState(tab);
+      localStorage.setItem('activeTab', tab);
+    };
+
+    // Persist dark mode to localStorage
+    useEffect(() => {
+      localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }, [isDarkMode]);
+
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -2633,6 +2666,8 @@ return (
               setIsSettingsOpen(false);
             }}
             user={user}
+            isDarkMode={isDarkMode}
+            onDarkModeToggle={setIsDarkMode}
           />
 
 
