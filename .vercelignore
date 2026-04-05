@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Testing
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+coverage/
+
+# Development
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Build artifacts (we'll use Vite's output)
+tsc-out/
+
+# Documentation (optional - remove if you want these in deployment)
+README.md
+QUICKSTART.md
+LOCAL_DEV_GUIDE.md
+MIGRATION_GUIDE.md
+AUTH_IMPLEMENTATION.md
+GOOGLE_DRIVE_SETUP.md
+SUPABASE_SETUP.md
+VERCEL_AUTH_SETUP.md
+COMPLETE_SETUP.md
+DEPLOYMENT_SUMMARY.md
+VERCEL_MIGRATION_COMPLETE.md
+out.txt
+
+# Configuration files (optional)
+eslint.config.js
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+postcss.config.js
+
+# Keep essential files
+!dist/
+!api/
+!backend/
+!lib/
+!public/
+!.env.example
