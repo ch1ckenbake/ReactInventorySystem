@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Root dark mode - applied via isDarkMode state */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 /* Custom scrollbar for dark mode */
 ::-webkit-scrollbar {
   width: 8px;
@@ -14,14 +19,46 @@
   @apply bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500 dark:hover:bg-gray-500;
 }
 
-/* Smooth transitions for theme switching */
+/* Smooth color transitions for theme switching */
 * {
-  @apply transition-colors duration-200;
+  @apply transition-colors duration-250;
 }
 
-/* Dark mode specific styling */
-.dark {
+/* Dark mode - ensure no white elements */
+.dark, [data-theme="dark"] {
   color-scheme: dark;
+  --color-bg-primary: rgb(31, 41, 55); /* gray-800 */
+  --color-bg-secondary: rgb(17, 24, 39); /* gray-900 */
+  --color-bg-tertiary: rgb(3, 7, 18); /* gray-950 */
+  --color-text-primary: rgb(243, 244, 246); /* gray-100 */
+  --color-text-secondary: rgb(209, 213, 219); /* gray-300 */
+}
+
+/* Force dark backgrounds when dark mode is active */
+.dark button, 
+.dark input, 
+.dark select, 
+.dark textarea,
+.dark table {
+  @apply bg-gray-800 text-gray-100;
+}
+
+.dark table tbody tr {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark table tbody tr:hover {
+  @apply bg-gray-700;
+}
+
+.dark .modal, 
+.dark [role="dialog"] {
+  @apply bg-gray-900;
+}
+
+.dark .card, 
+.dark [class*="card"] {
+  @apply bg-gray-800 border-gray-700;
 }
 
 /* Responsive table wrapper */
