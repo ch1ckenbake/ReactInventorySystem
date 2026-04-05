@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, Loader } from 'lucide-react';
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 
 interface LoginPageProps {
   warning?: string;
@@ -43,7 +44,7 @@ export function LoginPage({ warning }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-600 to-blue-900 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -82,7 +83,7 @@ export function LoginPage({ warning }: LoginPageProps) {
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
               text="signin"
-              theme="light"
+              theme="outline"
             />
           )}
         </div>
