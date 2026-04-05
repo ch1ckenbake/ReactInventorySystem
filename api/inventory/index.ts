@@ -151,39 +151,81 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST') {
-      const { data, error } = await supabase
-        .from('inventory')
-        .insert([req.body])
-        .select()
-        .single();
+      try {
+        // Convert camelCase to snake_case for database
+        const body = req.body;
+        const dbPayload = {
+          batch_code: body.batchCode,
+          category_id: body.categoryId,
+          variety_id: body.varietyId,
+          packaging_id: body.packagingId,
+          quantity_packages: body.quantityPackages,
+          total_weight: body.totalWeight,
+          status: body.status,
+          created_at: body.createdAt || new Date().toISOString()
+        };
 
-      if (error) {
-        console.error('[Inventory POST] Error:', error);
-        return res.status(500).json({ error: error.message });
+        const { data, error } = await supabase
+          .from('inventory')
+          .insert([dbPayload])
+          .select()
+          .single();
+
+        if (error) {
+          console.error('[Inventory POST] Error:', error);
+          return res.status(500).json({ error: error.message });
+        }
+
+        return res.status(201).json(data);
+      } catch (error) {
+        console.error('[Inventory POST] Unhandled error:', error);
+        return res.status(500).json({
+          error: 'Internal server error',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
-
-      return res.status(201).json(data);
     }
 
     if (req.method === 'PUT') {
-      const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
-      if (!id) {
-        return res.status(400).json({ error: 'ID is required' });
+      try {
+        const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+        if (!id) {
+          return res.status(400).json({ error: 'ID is required' });
+        }
+
+        // Convert camelCase to snake_case for database
+        const body = req.body;
+        const dbPayload = {
+          batch_code: body.batchCode,
+          category_id: body.categoryId,
+          variety_id: body.varietyId,
+          packaging_id: body.packagingId,
+          quantity_packages: body.quantityPackages,
+          total_weight: body.totalWeight,
+          status: body.status,
+          created_at: body.createdAt
+        };
+
+        const { data, error } = await supabase
+          .from('inventory')
+          .update(dbPayload)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('[Inventory PUT] Error:', error);
+          return res.status(500).json({ error: error.message });
+        }
+
+        return res.status(200).json(data);
+      } catch (error) {
+        console.error('[Inventory PUT] Unhandled error:', error);
+        return res.status(500).json({
+          error: 'Internal server error',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
-
-      const { data, error } = await supabase
-        .from('inventory')
-        .update(req.body)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('[Inventory PUT] Error:', error);
-        return res.status(500).json({ error: error.message });
-      }
-
-      return res.status(200).json(data);
     }
 
     if (req.method === 'DELETE') {

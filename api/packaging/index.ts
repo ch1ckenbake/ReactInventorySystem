@@ -68,13 +68,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .single();
 
       if (error) {
+        console.error('[Packaging POST] Error:', error);
         return res.status(500).json({ error: error.message });
       }
 
       return res.status(201).json(data);
     } catch (error) {
-      console.error('[Packaging POST] Error:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error('[Packaging POST] Unhandled error:', error);
+      return res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
@@ -93,13 +97,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .single();
 
       if (error) {
+        console.error('[Packaging PUT] Error:', error);
         return res.status(500).json({ error: error.message });
       }
 
       return res.status(200).json(data);
     } catch (error) {
-      console.error('[Packaging PUT] Error:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error('[Packaging PUT] Unhandled error:', error);
+      return res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 

@@ -61,20 +61,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'POST') {
     try {
+      // Convert camelCase to snake_case for database
+      const body = req.body;
+      const dbPayload = {
+        category_id: body.categoryId,
+        name: body.name,
+        description: body.description,
+        packagingPrices: body.packagingPrices || {} // Store as JSONB
+      };
+
       const { data, error } = await supabase
         .from('varieties')
-        .insert([req.body])
+        .insert([dbPayload])
         .select()
         .single();
 
       if (error) {
+        console.error('[Varieties POST] Error:', error);
         return res.status(500).json({ error: error.message });
       }
 
       return res.status(201).json(data);
     } catch (error) {
-      console.error('[Varieties POST] Error:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error('[Varieties POST] Unhandled error:', error);
+      return res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
@@ -85,9 +98,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'ID is required' });
       }
 
+      // Convert camelCase to snake_case for database
+      const body = req.body;
+      const dbPayload = {
+        category_id: body.categoryId,
+        name: body.name,
+        description: body.description,
+        packagingPrices: body.packagingPrices || {} // Store as JSONB
+      };
+
       const { data, error } = await supabase
         .from('varieties')
-        .update(req.body)
+        .update(dbPayload)
         .eq('id', id)
         .select()
         .single();
