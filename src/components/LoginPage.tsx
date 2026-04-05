@@ -15,25 +15,34 @@ export function LoginPage({ warning }: LoginPageProps) {
     setIsLoading(true);
     setError(null);
     try {
+      console.log('[LoginPage] Sending token to /api/auth/google...');
       const response = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credentialResponse.credential }),
       });
 
+      console.log(`[LoginPage] Auth response status: ${response.status}`);
+      
       if (!response.ok) {
-        throw new Error('Failed to authenticate with Google');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[LoginPage] Auth error:', errorData);
+        throw new Error(errorData.error || 'Failed to authenticate with Google');
       }
 
       const data = await response.json();
+      console.log('[LoginPage] Auth successful, storing user:', data.user.email);
       
       // Store user info in localStorage
       localStorage.setItem('google_user_info', JSON.stringify(data.user));
+      localStorage.setItem('google_auth_token', JSON.stringify(credentialResponse.credential));
       
       // Redirect to app
       window.location.href = '/';
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      const errorMsg = err instanceof Error ? err.message : 'Login failed';
+      console.error('[LoginPage] Error:', errorMsg);
+      setError(errorMsg);
       setIsLoading(false);
     }
   };
