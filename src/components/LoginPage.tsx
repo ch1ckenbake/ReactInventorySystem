@@ -54,36 +54,40 @@ export function LoginPage({ warning }: LoginPageProps) {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="bg-white/15 backdrop-blur-lg rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/30">
+      {/* Subtle gradient background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-30 -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-30 -z-10"></div>
+      
+      <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-10 border border-gray-200">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <div className="flex justify-center mb-4">
-            <div className="bg-white/20 p-4 rounded-full">
-              <Lock className="w-8 h-8 text-white" />
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-lg">
+              <Lock className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Inventory System</h1>
-          <p className="text-white/80 text-sm">Sign in to manage your inventory</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Inventory</h1>
+          <p className="text-gray-600 text-sm">Sign in to manage your stocks</p>
         </div>
 
         {/* Warning Message */}
         {warning && (
-          <div className="mb-6 p-4 bg-white/10 border border-white/20 rounded-lg">
-            <p className="text-white/90 text-sm">{warning}</p>
+          <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-amber-900 text-sm">{warning}</p>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-400/50 rounded-lg">
-            <p className="text-red-100 text-sm font-medium">{error}</p>
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-900 text-sm font-medium">{error}</p>
           </div>
         )}
 
         {/* Login Button */}
-        <div className="mb-6 flex justify-center">
+        <div className="mb-8 flex justify-center">
           {isLoading ? (
-            <div className="bg-white/20 text-white font-semibold py-3 px-8 rounded-lg flex items-center justify-center gap-2">
+            <div className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
               <Loader className="w-5 h-5 animate-spin" />
               Signing in...
             </div>
@@ -92,25 +96,28 @@ export function LoginPage({ warning }: LoginPageProps) {
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
               text="signin_with"
-              theme="filled_blue"
+              theme="outline"
             />
           )}
         </div>
 
         {/* Divider */}
-        <div className="relative mb-6">
+        <div className="relative mb-8">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/20"></div>
+            <div className="w-full border-t border-gray-200"></div>
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="px-2 bg-white text-gray-500">or continue anonymously</span>
           </div>
         </div>
 
         {/* Info Section */}
-        <p className="text-white/80 text-xs text-center">
-          Secure authentication with your Google account
+        <p className="text-gray-600 text-xs text-center leading-relaxed">
+          Secure authentication with your Google account. Your data is encrypted and safe.
         </p>
 
         {/* Footer */}
-        <p className="text-center text-xs text-white/70 mt-6">
+        <p className="text-center text-xs text-gray-400 mt-6">
           By signing in, you agree to our terms of service
         </p>
       </div>
