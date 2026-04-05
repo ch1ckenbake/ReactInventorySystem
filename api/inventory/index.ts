@@ -77,7 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ? supabase.from('varieties').select('*').in('id', varietyIds)
             : Promise.resolve({ data: [] }),
           packagingIds.length > 0
-            ? supabase.from('packaging').select('*').in('id', packagingIds)
+            ? supabase.from('packaging_types').select('*').in('id', packagingIds)
             : Promise.resolve({ data: [] })
         ]);
 

@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
     try {
       const { data, error } = await supabase
-        .from('packaging')
+        .from('packaging_types')
         .select('*')
         .order('id', { ascending: true });
 
@@ -62,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') {
     try {
       const { data, error } = await supabase
-        .from('packaging')
+        .from('packaging_types')
         .insert([req.body])
         .select()
         .single();
@@ -86,7 +86,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const { data, error } = await supabase
-        .from('packaging')
+        .from('packaging_types')
         .update(req.body)
         .eq('id', id)
         .select()
@@ -111,7 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const { error } = await supabase
-        .from('packaging')
+        .from('packaging_types')
         .delete()
         .eq('id', id);
 
