@@ -1188,9 +1188,9 @@ if (activeTab === 'Dashboard') {
   }
 
 return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-gray-50">
-      {/* Main Layout Container */}
-      <div className="flex flex-col lg:flex-row gap-8">
+    <div className="flex-1 overflow-y-auto p-2 sm:p-4 lg:p-8 bg-gray-50">
+      {/* Main Layout Container - Stack on mobile */}
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
         
         {/* Left Column: Stats Cards + Chart */}
         <div className="flex-1 space-y-8">
@@ -1236,76 +1236,77 @@ return (
 {/* Stock Summary Chart Section */}
 
 <section>
-  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-    <div className="flex justify-between items-center mb-6">
-      <h3 className="font-semibold text-lg text-gray-900">Inventory Summary</h3>
+  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+      <h3 className="font-semibold text-base sm:text-lg text-gray-900">Inventory Summary</h3>
       
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-wrap">
         {/* Metric Toggle (Packages vs Weight) */}
-        <div className="relative">
+        <div className="relative flex-1 sm:flex-none min-w-max">
      <select
   value={chartMetric}
   onChange={(e) => setChartMetric(e.target.value as 'batches' | 'weight')}
-  className="appearance-none px-4 py-2 pr-10 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+  className="appearance-none w-full px-3 sm:px-4 py-2 pr-8 sm:pr-10 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
 >
   <option value="batches">Batches</option>
   <option value="weight">Weight (kg)</option>
 </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={16} />
+          <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={14} />
         </div>
 
         {/* Category Filter */}
-        <div className="relative">
+        <div className="relative flex-1 sm:flex-none min-w-max">
           <select
             value={chartCategoryFilter}
             onChange={(e) => {
               setChartCategoryFilter(e.target.value);
-              setChartVarietyFilter('All'); // Reset variety when category changes
+              setChartVarietyFilter('All');
             }}
-            className="appearance-none px-4 py-2 pr-10 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+            className="appearance-none w-full px-3 sm:px-4 py-2 pr-8 sm:pr-10 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
           >
             <option value="All">All Categories</option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={16} />
+          <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={14} />
         </div>
 
         {/* Variety Filter */}
-        <div className="relative">
+        <div className="relative flex-1 sm:flex-none min-w-max">
           <select
             value={chartVarietyFilter}
             onChange={(e) => setChartVarietyFilter(e.target.value)}
             disabled={chartCategoryFilter === 'All'}
-            className="appearance-none px-4 py-2 pr-10 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="appearance-none w-full px-3 sm:px-4 py-2 pr-8 sm:pr-10 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="All">All Varieties</option>
             {filteredVarietiesForChart.map(variety => (
               <option key={variety.id} value={variety.id}>{variety.name}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={16} />
+          <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={14} />
         </div>
 
         {/* Time Period Dropdown */}
-        <div className="relative">
+        <div className="relative flex-1 sm:flex-none min-w-max">
           <select
             value={timePeriod}
             onChange={(e) => setTimePeriod(e.target.value as 'days' | 'weeks' | 'months' | 'years')}
-            className="appearance-none px-4 py-2 pr-10 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+            className="appearance-none w-full px-3 sm:px-4 py-2 pr-8 sm:pr-10 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
           >
             <option value="days">Day</option>
             <option value="weeks">Week</option>
             <option value="months">Month</option>
             <option value="years">Year</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={16} />
+          <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={14} />
         </div>
       </div>
     </div>
     
-    <ResponsiveContainer width="100%" height={300}>
+    <div className="overflow-x-auto">
+      <ResponsiveContainer width="100%" height={300} minWidth={250}>
       <LineChart data={chartData.trendData}>
         <defs>
           <linearGradient id="colorPackages" x1="0" y1="0" x2="0" y2="1">
@@ -1350,23 +1351,24 @@ return (
 />
       </LineChart>
     </ResponsiveContainer>
+    </div>
   </div>
 </section>
 
 {/* Donut Charts Section - Category/Variety Distribution */}
 <section>
-  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-    <div className="flex justify-between items-center mb-6">
+  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
       <div>
-        <h3 className="font-semibold text-lg text-gray-900">
+        <h3 className="font-semibold text-base sm:text-lg text-gray-900">
           {donutView === 'category' ? 'Category Distribution' : 'Variety Distribution'}
         </h3>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">
           {donutView === 'category' ? 'Stock breakdown by category' : 'Stock breakdown by variety'}
         </p>
       </div>
       
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         {/* Toggle between Category and Variety */}
         <div className="flex bg-gray-100 rounded-lg p-1">
           <button
@@ -1374,7 +1376,7 @@ return (
               setDonutView('category');
               setDonutCategoryFilter('All');
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all ${
               donutView === 'category'
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
@@ -1389,7 +1391,7 @@ return (
               const firstCategory = categories.length > 0 ? categories[0].id : 'All';
               setDonutCategoryFilter(firstCategory);
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all ${
               donutView === 'variety'
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
@@ -1401,26 +1403,26 @@ return (
 
         {/* Category Filter - only show when viewing varieties, no "All" option */}
         {donutView === 'variety' && (
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none min-w-max">
             <select
               value={donutCategoryFilter}
               onChange={(e) => setDonutCategoryFilter(e.target.value)}
-              className="appearance-none px-4 py-2 pr-10 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+              className="appearance-none w-full px-3 sm:px-4 py-2 pr-8 sm:pr-10 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
             >
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={16} />
+            <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" size={14} />
           </div>
         )}
       </div>
     </div>
 
-    {/* Single Donut Chart with Legend - 2/5 width */}
-    <div className="flex items-center gap-8">
-      {/* Donut Chart - 2/5 width */}
-      <div className="shrink-0" style={{ width: '40%' }}>
+    {/* Single Donut Chart with Legend - Stack on mobile */}
+    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-8">
+      {/* Donut Chart - Full width on mobile, 40% on desktop */}
+      <div className="w-full lg:w-2/5 shrink-0">
         {donutChartData.items.length > 0 ? (
           <div className="relative" style={{ height: '280px' }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -1457,28 +1459,28 @@ return (
         )}
       </div>
 
-      {/* Legend - 3/5 width */}
-      <div className="flex-1">
-        <div className="space-y-3">
+      {/* Legend - 3/5 width on desktop, full on mobile */}
+      <div className="w-full lg:w-3/5">
+        <div className="space-y-2 sm:space-y-3">
           {donutChartData.items.map((item) => {
             const percentage = donutChartData.total > 0 
               ? Math.round((item.value / donutChartData.total) * 100) 
               : 0;
 
             return (
-              <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div key={item.name} className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div 
-                    className="w-4 h-4 rounded-full shrink-0" 
+                    className="w-3 h-3 sm:w-4 sm:h-4 rounded-full shrink-0" 
                     style={{ backgroundColor: item.color }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">{item.name}</p>
                     <p className="text-xs text-gray-500">{item.value.toLocaleString()} kg</p>
                   </div>
                 </div>
-                <div className="shrink-0 ml-4">
-                  <span className="text-lg font-bold text-gray-900">{percentage}%</span>
+                <div className="shrink-0 ml-2 sm:ml-4">
+                  <span className="text-base sm:text-lg font-bold text-gray-900">{percentage}%</span>
                 </div>
               </div>
             );
@@ -1603,26 +1605,26 @@ return (
         ].reduce((a, b) => a + b, 0);
         
         return (
-          <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4 lg:p-8">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-full">
               
               {/* Table Toolbar */}
-              <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between gap-4 items-center">
+              <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-100 flex flex-col gap-3 sm:gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Inventory Stock</h3>
-                  <p className="text-sm text-gray-500">Manage rice stocks and by-products</p>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">Inventory Stock</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">Manage rice stocks and by-products</p>
                 </div>
 
-                <div className="flex gap-3 relative">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 relative">
                   {/* Search with dropdown */}
-                  <div className="relative">
+                  <div className="relative flex-1 sm:flex-none">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
                     <input
                       type="text"
                       placeholder={`Search by ${searchBy.toLowerCase()}...`}
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-24 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full pl-9 pr-20 sm:pr-24 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                     <button
                       onClick={(e) => {
@@ -1769,9 +1771,9 @@ return (
 
                   <button 
                     onClick={handleOpenModal}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm transition-all"
+                    className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm transition-all whitespace-nowrap"
                   >
-                    <Plus size={16} /> Add Stock
+                    <Plus size={16} /> <span className="hidden sm:inline">Add Stock</span><span className="sm:hidden">Add</span>
                   </button>
                 </div>
               </div>
@@ -2480,6 +2482,71 @@ return (
         );
       }
       
+      // ANALYTICS TAB
+      if (activeTab === 'Analytics') {
+        return (
+          <div className="flex-1 overflow-y-auto p-8">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+              <div className="mb-8">
+                <h3 className="text-lg font-bold text-gray-900">Analytics & Master Data</h3>
+                <p className="text-sm text-gray-500 mt-1">Manage your categories, varieties, and packaging types</p>
+              </div>
+
+              {/* Master Data Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Categories Card */}
+                <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setActiveTab('Categories')}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-blue-100 p-3 rounded-lg">
+                      <Tag size={24} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Categories</h4>
+                      <p className="text-sm text-gray-500">{categories.length} categories</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 rounded-lg gap-2">
+                    Manage Categories →
+                  </button>
+                </div>
+
+                {/* Varieties Card */}
+                <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setActiveTab('Varieties')}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-purple-100 p-3 rounded-lg">
+                      <Layers size={24} className="text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Varieties</h4>
+                      <p className="text-sm text-gray-500">{varieties.length} varieties</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 text-sm font-medium text-purple-600 hover:text-purple-700 bg-purple-50 rounded-lg gap-2">
+                    Manage Varieties →
+                  </button>
+                </div>
+
+                {/* Packaging Card */}
+                <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setActiveTab('Packaging')}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-orange-100 p-3 rounded-lg">
+                      <Box size={24} className="text-orange-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Packaging</h4>
+                      <p className="text-sm text-gray-500">{packagingTypes.length} types</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 rounded-lg gap-2">
+                    Manage Packaging →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      
       // Fallback
       return (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
@@ -2533,9 +2600,9 @@ return (
         </header>
 
         {/* Sidebar - Desktop visible, Mobile overlay */}
-        <aside className={`fixed lg:static inset-y-0 left-0 lg:inset-auto w-64 lg:w-60 bg-white border-gray-200 border-r transition-transform duration-300 z-40 lg:z-0 ${
+        <aside className={`fixed lg:static inset-y-0 left-0 lg:inset-auto w-56 sm:w-64 lg:w-60 bg-white border-gray-200 border-r transition-transform duration-300 z-40 lg:z-0 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } pt-4 lg:pt-8 px-4 lg:px-6 flex flex-col overflow-y-auto`}>
+        } pt-4 lg:pt-8 px-3 sm:px-4 lg:px-6 flex flex-col overflow-y-auto`}>
           {/* Close button for mobile */}
           <button 
             onClick={() => setIsMobileSidebarOpen(false)}
@@ -2550,7 +2617,7 @@ return (
           </div>
 
           <nav className="space-y-2 flex-1">
-            {["Dashboard", "Inventory", "Analytics"].map(item => (
+            {["Dashboard", "Inventory"].map(item => (
               <button
                 key={item}
                 onClick={() => {
@@ -2566,6 +2633,43 @@ return (
                 {item}
               </button>
             ))}
+          </nav>
+
+          {/* Analytics & Master Data Section */}
+          <nav className="space-y-2 border-t py-4" style={{borderColor: '#e5e7eb'}}>
+            <button
+              onClick={() => {
+                setActiveTab("Analytics");
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                activeTab === "Analytics"
+                  ? 'bg-blue-50 text-blue-600 shadow'
+                  : 'hover:bg-gray-100 text-gray-700'
+              }`}
+            >
+              Analytics
+            </button>
+
+            {/* Master Data subsection */}
+            <div className="mt-2 ml-4 space-y-1 pl-4 border-gray-100 border-l-2">
+              {["Categories", "Varieties", "Packaging"].map(item => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    setActiveTab(item);
+                    setIsMobileSidebarOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === item 
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
           </nav>
 
           <nav className="space-y-2 border-t py-4" style={{borderColor: '#e5e7eb'}}>
@@ -2585,43 +2689,6 @@ return (
                 {item}
               </button>
             ))}
-          </nav>
-
-          {/* Master Data Section */}
-          <nav className="space-y-2 border-t py-4 border-gray-200">
-            <div className="pt-2">
-              <button
-                onClick={() => setIsMasterDataOpen(!isMasterDataOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg font-medium transition-all text-gray-600 hover:bg-gray-100"
-              >
-                <span>Master Data</span>
-                <ChevronRight 
-                  size={18} 
-                  className={`transform transition-transform duration-200 ${isMasterDataOpen ? 'rotate-90' : ''}`}
-                />
-              </button>
-
-              {isMasterDataOpen && (
-                <div className="mt-1 ml-4 space-y-1 pl-4 border-gray-100 border-l-2">
-                  {["Categories", "Varieties", "Packaging"].map(item => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        setActiveTab(item);
-                        setIsMobileSidebarOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        activeTab === item 
-                          ? 'bg-blue-50 text-blue-600'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           </nav>
 
           {/* Settings Section */}
@@ -2648,10 +2715,10 @@ return (
 
         {/* Main Layout */}
         <main className="flex-1 flex flex-col overflow-hidden relative w-full lg:w-auto">
-          <header className="bg-white border-gray-100 px-4 lg:px-8 py-4 lg:py-5 flex items-center justify-between sticky top-0 z-10 border-b">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xl lg:text-2xl font-bold text-gray-900 truncate">{activeTab}</h2>
-              <p className="text-xs lg:text-sm text-gray-500 mt-1 truncate">
+          <header className="bg-white border-gray-100 px-3 sm:px-4 lg:px-8 py-3 sm:py-4 lg:py-5 flex items-center justify-between sticky top-0 z-10 border-b">
+            <div className="flex-1 min-w-0 pr-2">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">{activeTab}</h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate hidden sm:block">
                 {activeTab === 'Dashboard' ? 'Your Inventory Dashboard' : `Manage your ${activeTab}`}
               </p>
             </div>
@@ -2697,7 +2764,7 @@ return (
           
           {/* Content Area - Responsive Padding */}
           <div className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="px-4 py-4 lg:px-8 lg:py-6">
+            <div className="px-2 sm:px-4 py-3 sm:py-4 lg:px-8 lg:py-6 max-w-7xl mx-auto w-full">
               {renderContent()}
             </div>
           </div>
