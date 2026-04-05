@@ -156,15 +156,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const body = req.body;
+      const { packagingPrices, ...varietyData } = body;
       
       // Update the variety record
       const dbPayload = {
-        category_id: body.categoryId,
-        name: body.name,
-        description: body.description
+        category_id: varietyData.categoryId,
+        name: varietyData.name,
+        description: varietyData.description
       };
 
-      const { data: varietyData, error: varietyError } = await supabase
+      const { data: varietyUpdated, error: varietyError } = await supabase
         .from('varieties')
         .update(dbPayload)
         .eq('id', id)
@@ -175,37 +176,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: varietyError.message });
       }
 
-      // Update packaging associations if provided
-      if (body.packagingIds && Array.isArray(body.packagingIds)) {
-        // Delete existing associations
+      // Update packaging prices if provided
+      if (packagingPrices && Object.keys(packagingPrices).length > 0) {
+        // Delete existing prices for this variety
         const { error: deleteError } = await supabase
-          .from('category_variety_packages')
+          .from('variety_packaging_prices')
           .delete()
           .eq('variety_id', id);
 
         if (deleteError) {
-          return res.status(500).json({ error: deleteError.message });
+          console.warn('[Varieties PUT] Delete prices error:', deleteError);
         }
 
-        // Create new associations
-        if (body.packagingIds.length > 0) {
-          const packageRecords = body.packagingIds.map((packageId: string) => ({
-            category_id: body.categoryId,
-            variety_id: id,
-            package_id: packageId
-          }));
+        // Insert new prices
+        const priceRecords = Object.entries(packagingPrices).map(([packagingId, price]) => ({
+          variety_id: id,
+          packaging_id: packagingId,
+          price: Number(price) || 0
+        }));
 
-          const { error: insertError } = await supabase
-            .from('category_variety_packages')
-            .insert(packageRecords);
+        const { error: insertError } = await supabase
+          .from('variety_packaging_prices')
+          .insert(priceRecords);
 
-          if (insertError) {
-            return res.status(500).json({ error: insertError.message });
-          }
+        if (insertError) {
+          console.warn('[Varieties PUT] Insert prices error:', insertError);
+        }
+      } else if (packagingPrices !== undefined) {
+        // If packagingPrices is provided but empty, delete all existing prices
+        const { error: deleteError } = await supabase
+          .from('variety_packaging_prices')
+          .delete()
+          .eq('variety_id', id);
+
+        if (deleteError) {
+          console.warn('[Varieties PUT] Delete prices error:', deleteError);
         }
       }
 
-      return res.status(200).json(varietyData);
+      // Return enriched variety with prices
+      const enrichedVariety = {
+        ...varietyUpdated,
+        packagingPrices: packagingPrices || {}
+      };
+
+      return res.status(200).json(enrichedVariety);
     } catch (error) {
       console.error('[Varieties PUT] Error:', error);
       return res.status(500).json({ error: 'Internal server error' });
