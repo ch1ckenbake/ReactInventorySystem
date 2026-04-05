@@ -1,12 +1,46 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+// Add CORS headers helper
+function addCorsHeaders(res: VercelResponse, req?: VercelRequest) {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', req?.headers.origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
+  );
+}
+
+// Initialize Supabase safely
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+let supabase: any = null;
+
+if (supabaseUrl && supabaseKey) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+  } catch (error) {
+    console.error('[Categories] Supabase init error:', error);
+  }
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  addCorsHeaders(res, req);
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (!supabase) {
+    console.error('[Categories] Supabase not initialized');
+    return res.status(503).json({ 
+      error: 'Database not configured',
+      details: 'SUPABASE_URL or SUPABASE_ANON_KEY not set'
+    });
+  }
+
   if (req.method === 'GET') {
     try {
       const { data, error } = await supabase

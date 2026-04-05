@@ -15,13 +15,15 @@ if (supabaseUrl && supabaseKey) {
   }
 } else {
   console.warn('[API] Supabase credentials not found in environment variables');
+  console.warn('[API] SUPABASE_URL:', supabaseUrl ? 'set' : 'missing');
+  console.warn('[API] SUPABASE_ANON_KEY:', supabaseKey ? 'set' : 'missing');
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Enable CORS
+  // Enable CORS for all requests
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT,HEAD');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
@@ -39,14 +41,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[${new Date().toISOString()}] ${method} ${pathname}`);
 
   try {
-    // Health check endpoint
-    if (pathname === '/api/health') {
+    // Diagnostic endpoint
+    if (pathname === '/api/health' || pathname === '/api/diagnostics') {
       return res.status(200).json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         message: 'API is running',
-        supabaseReady: !!supabase,
-        googleClientId: process.env.GOOGLE_CLIENT_ID ? 'set' : 'not set'
+        diagnostics: {
+          supabaseReady: !!supabase,
+          supabaseUrl: supabaseUrl ? 'configured' : 'missing',
+          googleClientId: process.env.GOOGLE_CLIENT_ID ? 'configured' : 'missing',
+          nodeEnv: process.env.NODE_ENV || 'development'
+        }
       });
     }
 
