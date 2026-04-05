@@ -43,17 +43,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     if (req.method === 'GET') {
-      const { data, error } = await supabase
+      // First, get all inventory items
+      const { data: inventoryData, error: inventoryError } = await supabase
         .from('inventory')
         .select('*')
-        .order('id', { ascending: true });
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('[Inventory GET] Error:', error);
-        return res.status(500).json({ error: error.message });
+      if (inventoryError) {
+        console.error('[Inventory GET] Error:', inventoryError);
+        return res.status(500).json({ error: inventoryError.message });
       }
 
-      return res.status(200).json(data || []);
+      if (!inventoryData || inventoryData.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      // Get all unique category, variety, and packaging IDs
+      const categoryIds = [...new Set(inventoryData.map(item => item.category_id))];
+      const varietyIds = [...new Set(inventoryData.map(item => item.variety_id))];
+      const packagingIds = [...new Set(inventoryData.map(item => item.packaging_id))];
+
+      // Fetch related data
+      const [{ data: categories }, { data: varieties }, { data: packaging }] = await Promise.all([
+        categoryIds.length > 0 
+          ? supabase.from('categories').select('id, name').in('id', categoryIds)
+          : Promise.resolve({ data: [] }),
+        varietyIds.length > 0
+          ? supabase.from('varieties').select('id, name').in('id', varietyIds)
+          : Promise.resolve({ data: [] }),
+        packagingIds.length > 0
+          ? supabase.from('packaging').select('id, name, size, unit').in('id', packagingIds)
+          : Promise.resolve({ data: [] })
+      ]);
+
+      // Map the data to create lookup objects
+      const categoryMap = new Map(categories?.map(c => [c.id, c.name]) || []);
+      const varietyMap = new Map(varieties?.map(v => [v.id, v.name]) || []);
+      const packagingMap = new Map(packaging?.map(p => [p.id, { name: p.name, size: p.size, unit: p.unit }]) || []);
+
+      // Enrich inventory data with names
+      const enrichedData = inventoryData.map(item => ({
+        ...item,
+        category_name: categoryMap.get(item.category_id) || null,
+        variety_name: varietyMap.get(item.variety_id) || null,
+        packaging_name: packagingMap.get(item.packaging_id)?.name || null,
+        packaging_size: packagingMap.get(item.packaging_id)?.size || null,
+        packaging_unit: packagingMap.get(item.packaging_id)?.unit || null
+      }));
+
+      return res.status(200).json(enrichedData);
     }
 
     if (req.method === 'POST') {
