@@ -665,7 +665,7 @@ const handleCloseModal = () => {
       if (!confirmed) return;
 
       try {
-        const response = await fetch(`/api/inventory/${id}`, {
+        const response = await fetch(`/api/inventory?id=${id}`, {
           method: "DELETE",
         });
         
@@ -793,7 +793,7 @@ const handleCloseModal = () => {
         const payload = categoryFormData;
 
         if (isCategoryEditMode) {
-          await fetch(`/api/categories/${categoryFormData.id}`, {
+          await fetch(`/api/categories?id=${categoryFormData.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -820,7 +820,7 @@ const handleCloseModal = () => {
       if (!confirmed) return;
 
       try {
-        await fetch(`/api/categories/${id}`, { method: "DELETE" });
+        await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
         await loadCategories();
         await loadVarieties();
         await loadInventory();
@@ -900,7 +900,7 @@ const handleCloseModal = () => {
         };
 
         if (isVarietyEditMode) {
-          await fetch(`/api/varieties/${varietyFormData.id}`, {
+          await fetch(`/api/varieties?id=${varietyFormData.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -928,7 +928,7 @@ const handleCloseModal = () => {
       if (!confirmed) return;
 
       try {
-        await fetch(`/api/varieties/${id}`, { method: "DELETE" });
+        await fetch(`/api/varieties?id=${id}`, { method: "DELETE" });
         await loadVarieties();
         await loadInventory();
         await loadHistory();
@@ -975,7 +975,7 @@ const handleCloseModal = () => {
 
       try {
         if (isPackagingEditMode) {
-          await fetch(`/api/packaging/${packagingFormData.id}`, {
+          await fetch(`/api/packaging?id=${packagingFormData.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(packagingFormData),
@@ -1002,7 +1002,7 @@ const handleCloseModal = () => {
       if (!confirmed) return;
 
       try {
-        await fetch(`/api/packaging/${id}`, { method: "DELETE" });
+        await fetch(`/api/packaging?id=${id}`, { method: "DELETE" });
         await loadPackaging();
         await loadInventory();
         await loadHistory();
@@ -1078,7 +1078,7 @@ const handleCloseModal = () => {
       if (!confirmed) return;
 
       try {
-        await fetch(`/api/history/${id}`, { method: "DELETE" });
+        await fetch(`/api/history?id=${id}`, { method: "DELETE" });
         await loadHistory();
         setActiveDropdown(null);
       } catch (err) {
@@ -2686,7 +2686,7 @@ return (
 
   try {
     if (isEditMode) {
-      await fetch(`/api/inventory/${formData.id}`, {
+      await fetch(`/api/inventory?id=${formData.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

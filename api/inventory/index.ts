@@ -71,6 +71,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(201).json(data);
     }
 
+    if (req.method === 'PUT') {
+      const { id } = req.query;
+      if (!id) {
+        return res.status(400).json({ error: 'ID is required' });
+      }
+
+      const { data, error } = await supabase
+        .from('inventory')
+        .update(req.body)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Inventory PUT] Error:', error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      return res.status(200).json(data);
+    }
+
+    if (req.method === 'DELETE') {
+      const { id } = req.query;
+      if (!id) {
+        return res.status(400).json({ error: 'ID is required' });
+      }
+
+      const { error } = await supabase
+        .from('inventory')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('[Inventory DELETE] Error:', error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      return res.status(200).json({ success: true });
+    }
+
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     console.error('[Inventory] Unhandled error:', error);
