@@ -120,7 +120,6 @@ import { useAuth } from './hooks/useAuth';
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [isMasterDataOpen, setIsMasterDataOpen] = useState(false);
     const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [varieties, setVarieties] = useState<Variety[]>([]);
