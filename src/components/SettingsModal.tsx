@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogOut, LogIn, Cloud, CloudOff, Loader } from 'lucide-react';
+import { LogOut, Cloud, CloudOff } from 'lucide-react';
 import { clearAuthData } from '../services/googleAuth';
 
 interface GoogleUser {
@@ -19,7 +19,6 @@ interface SettingsProps {
 export function SettingsModal({ isOpen, onClose, onLogout, user }: SettingsProps) {
   const [currentUser, setCurrentUser] = useState<GoogleUser | null>(user);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     setCurrentUser(user);
@@ -35,25 +34,6 @@ export function SettingsModal({ isOpen, onClose, onLogout, user }: SettingsProps
       window.removeEventListener('offline', handleOffline);
     };
   }, [user]);
-
-  const handleLogin = async () => {
-    // Get OAuth URL and redirect
-    setIsLoggingIn(true);
-    try {
-      const response = await fetch('/api/auth/google/url');
-      const data = await response.json();
-      if (data.authUrl) {
-        window.location.href = data.authUrl;
-      } else {
-        alert('Failed to get Google OAuth URL');
-        setIsLoggingIn(false);
-      }
-    } catch (error) {
-      console.error('Error getting OAuth URL:', error);
-      alert('Error initializing login');
-      setIsLoggingIn(false);
-    }
-  };
 
   const handleLogout = () => {
     const confirmed = window.confirm('Are you sure you want to log out?');
@@ -79,11 +59,10 @@ export function SettingsModal({ isOpen, onClose, onLogout, user }: SettingsProps
           {/* Account Section */}
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <LogIn size={18} className="text-blue-600" />
               Account
             </h3>
 
-            {currentUser ? (
+            {currentUser && (
               <div className="bg-blue-50 rounded-lg p-4 space-y-3 border border-blue-200">
                 <div className="flex items-center gap-3">
                   {currentUser.picture && <img src={currentUser.picture} alt={currentUser.name} className="w-10 h-10 rounded-full" />}
@@ -95,13 +74,6 @@ export function SettingsModal({ isOpen, onClose, onLogout, user }: SettingsProps
                 </div>
                 <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50">
                   <LogOut size={16} /> Log Out
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-gray-600">Connect your Google account to backup your inventory.</p>
-                <button onClick={handleLogin} disabled={isLoggingIn} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
-                  {isLoggingIn ? <><Loader size={16} className="animate-spin" /> Logging in...</> : <><LogIn size={16} /> Connect Google</>}
                 </button>
               </div>
             )}
