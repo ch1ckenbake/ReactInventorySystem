@@ -80,7 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'DELETE') {
     try {
-      const { id } = req.query;
+      const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
       
       if (id) {
         // Delete specific history record

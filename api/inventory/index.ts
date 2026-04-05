@@ -72,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'PUT') {
-      const { id } = req.query;
+      const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
       if (!id) {
         return res.status(400).json({ error: 'ID is required' });
       }
@@ -93,7 +93,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
-      const { id } = req.query;
+      const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
       if (!id) {
         return res.status(400).json({ error: 'ID is required' });
       }
