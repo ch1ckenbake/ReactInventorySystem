@@ -2534,10 +2534,10 @@ return (
 
     // Only authenticated users see the full dashboard
     return (
-      <div className="h-screen flex bg-gray-50 text-gray-800 font-sans">
+      <div className={`h-screen flex ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-800'} font-sans`}>
         {/* Sidebar */}
-        <aside className="w-60 bg-white px-6 py-8 flex flex-col border-r border-gray-100">
-          <div className="flex items-center gap-2 text-2xl font-bold mb-10 text-gray-900 tracking-tight text-center">
+        <aside className={`w-60 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} px-6 py-8 flex flex-col border-r`}>
+          <div className={`flex items-center gap-2 text-2xl font-bold mb-10 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} tracking-tight text-center`}>
             <Package2 size={30} /> 
             <h1>Menu</h1>
           </div>
@@ -2601,17 +2601,17 @@ return (
             </button>
           </nav>
 
-          <div className="mt-auto border-t pt-6">
+          <div className={`mt-auto border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} pt-6`}>
             {/* Settings button in header — removed Settings tab but kept modal for Google Drive sync */}
           </div>
         </aside>
 
         {/* Main Layout */}
         <main className="flex-1 flex flex-col overflow-hidden relative">
-          <header className="bg-white px-8 py-5 flex items-center justify-between sticky top-0 z-10 border-b border-gray-100">
+          <header className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-100' : 'bg-white border-gray-100'} px-8 py-5 flex items-center justify-between sticky top-0 z-10 border-b`}>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{activeTab}</h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{activeTab}</h2>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
                 {activeTab === 'Dashboard' ? 'Your Inventory Dashboard' : `Manage your ${activeTab}`}
               </p>
             </div>
